@@ -12,7 +12,12 @@ module.exports = {
         "ametyst":"#9D4EDD",
         "wisteria":"#BD98E3",
         "orchid-pink":"#D4AFB9",
-        "cream":"#DCE1E9"
+        "cream":"#DCE1E9",
+        "text":"var(--text)",
+        "light-text":"var(--light-text)",
+        "primary":"var(--primary)",
+        "secondary":"var(--secondary)",
+        "dark":"var(--dark)"
       }
     }
   },
