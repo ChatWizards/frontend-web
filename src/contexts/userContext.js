@@ -1,12 +1,21 @@
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
+import useSessionStorage from '../hooks/useSessionStorage'
 
-const UserContext = React.createContext({});
+const inialState = {userName:"",token:"",profilePic:"",email:""}
+const UserContext = React.createContext(inialState);
 
 export default function UserProvider(props){
-    const [user,setUser] = useState({})
+    const [user,setUser] = useSessionStorage("user",inialState)
+    
+    useEffect(()=>{
+        console.log(user)
+    },[user])
+
     return(
         <UserContext.Provider value={{user,setUser}}>
             {props.children}
         </UserContext.Provider>
     )
 }
+
+export {UserContext};

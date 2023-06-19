@@ -1,16 +1,17 @@
-import { MessagePrimary } from "./message"
+import { GroupMessage, MessagePrimary } from "./message"
 import Chatbar from "./chatBar"
-import { createRef, useRef, useState } from "react"
+import {ChatContext,UserContext,ToastContext} from '../contexts'
+import { createRef, useContext, useRef, useState,useReducer, useEffect } from "react"
+import { apiInstance } from "../hooks/useFetch" 
+
+// import {messages} from '../Chatdata'
 
 function ChatSection(props){
-    const [chat,setChat] = useState([
-        {type:"primary",img:"/icons/logo.svg",message:"this is a test Message",messageTime:"9:30PM"},
-        {type:"secondary",img:"/icons/send.svg",message:"this is a test Message",messageTime:"9:30PM"},
-        {type:"primary",img:"/icons/logo.svg",message:"It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",messageTime:"9:30PM"},
-        {type:"secondary",img:"/icons/send.svg",message:"It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",messageTime:"9:30PM"},
-        {type:"secondary",img:"/icons/send.svg",message:"Surprise Mother Fucker",messageTime:"9:30PM"},
-        {type:"primary",img:"/icons/logo.svg",message:"this is not a test message",messageTime:"9:30PM"}
-    ])
+    const {chatState,chatDispatch} = useContext(ChatContext)
+    const {user} = useContext(UserContext)
+    const {setToastMsg} = useContext(ToastContext)
+    const [messages,setMessages] = useState([])
+    let type = "primary"
     
     const chatBarRef = useRef(null)
 
@@ -19,37 +20,84 @@ function ChatSection(props){
         const time = new Date()
         let messageTime = ""
         let status = "AM"
-        console.log(time.getHours(),time.getMinutes())
-        if(time.getHours>12){
+        if(time.getHours()>12){
             time.setHours(time.getHours()-12)
             status = "PM"
         }   
+        if(time.getHours()==0){
+            time.setHours(12) 
+        }
         messageTime = time.getHours()+":"+time.getMinutes()+" "+status
-        setChat((prev)=>(
-            [...prev,{type:"primary",img:"/icons/logo.svg",message:message,messageTime:messageTime}]
-        ))
+        apiInstance.post('/chat/send',
+            {chatId:chatState.chatId,messageContent:chatBarRef.current.value},
+                {headers:{'Authorization':"Bearer "+user.token}})
+            .then((res)=>{
+                const data = {res}
+                console.log(data)
+            })
+            .catch((err)=>{
+                console.log(err)
+                const {data} = err.response
+                setToastMsg({type:"error",message:data.message})
+            })
         chatBarRef.current.value = ""
     }
 
+    const renameChat = (new_name)=> {
+        if(chatState.isGroupChat){
+            chatDispatch({type:"RENAME_GROUP",payload:"thunder_buddies"})
+        }
+    }
+
+    useEffect(()=>{
+        console.log("fetching")
+        if(chatState.chatId){
+            apiInstance.post('/chat/getMessages',
+                {chatId:chatState.chatId},
+                {headers:{'Authorization':"Bearer "+user.token}})
+            .then((res)=>{
+                const {data} = res
+                setMessages(data.response)
+            })
+        }
+    },[chatState.chatId,chatState.messages])
+
+    useEffect(()=>{
+        chatDispatch({type:"SET_CHAT_MESSAGES",payload:messages})
+    },[messages])
+
+    const parseTime = (i)=>{
+        let time = i.substr(12,4)
+        return time
+    }
+
     return(
-        <section className="chat-section relative w-full bg-secondary h-screen grid grid-flow-row">
-            <div className="w-full py-4 border-b-2">
-                <h3 className="contact-name text-xl font-semibold text-white ps-4 font-mono uppercase">{props.userName||"user1"}</h3>
+        <section className="grid chat-section relative w-full bg-secondary h-screen">
+            <div className="w-full border-b-2 flex row-span-1 items-center h-[60px] justify-between pe-10">
+                <div className="ps-4 flex items-center gap-2">
+                    <img src="/logo.svg" height={40} width={40} className="rounded-full" alt="" />
+                    <h3 className="contact-name text-xl font-semibold text-white font-mono uppercase">{chatState.chatName||"user1"}</h3>
+                </div>
                 {/* <span className="search">add search among messages feature</span> */}
+                <div id="chat-header-icons" className="flex gap-2">
+                    <button className={`text-primary p-1 w-8 h-8 flex items-center justify-center border-[1px] duration-300 cursor-pointer shadow-lg shadow-dark border-primary rounded-full hover:bg-primary`} onClick={()=>renameChat("new_name")}>✏️</button>
+                    <button className={`text-primary p-1 w-8 h-8 flex items-center justify-center border-[1px] duration-300 cursor-pointer shadow-lg shadow-dark border-primary rounded-full hover:bg-primary hover:text-black`}>...</button>                
+                </div>
             </div>
-            <div className="w-full overflow-y-scroll relative">
-                {
-                    chat.map((i,index)=>(
-                        <MessagePrimary key={index} {...i}/>                        
-                    ))
-                }
+            <div className="w-full overflow-y-scroll relative py-2 px-4">
+            {!chatState.messages.length&&(
+                <h1 className="inline-block text-2xl absolute top-1/2 left-1/2 -translate-x-1/2">No messages in the conversation</h1>
+            )}
+            {chatState.messages.map((ele,index)=>{
+                type = ele.sender.userName==user.userName?"primary":"secondary"
+                return chatState.isGroupChat? <GroupMessage key={ele._id} type={type} message={ele.content} image={ele.sender.profilePic} userName={ele.sender.name} messageTime={parseTime(ele.timeStamp)}/>:
+                <MessagePrimary key={ele._id} type={type} message={ele.content} image={ele.sender.profilePic} messageTime={parseTime(ele.timeStamp)}/>
+            })}
             </div>
-            <div className="w-full p-2 bg-dark">
+            <div className="w-full px-2 bg-dark flex items-center h-[60px]">
                 <Chatbar ref={chatBarRef} sendMessage={sendMessage}></Chatbar>
             </div>
-            {/* {props.messages&&props.messages.length?"":(
-                <h1 className="inline-block text-2xl absolute top-1/2 left-1/2 -translate-x-1/2">No messages in the conversation</h1>
-            )} */}
+
         </section>
     )
 }

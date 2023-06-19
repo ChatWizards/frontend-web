@@ -18,7 +18,13 @@
 input:focus,input:active,select:focus,select:active,textarea:focus,textarea:active{
   outline: none;
 }
-  .message-text.primary::before {
+
+input:-webkit-autofill{
+    background-color: var(--dark) !important;
+    color: var(--primary) !important;
+}
+  
+.message-text.primary::before {
     content: "";
     width: 0;
     height: 0;
@@ -105,3 +111,26 @@ input:focus,input:active,select:focus,select:active,textarea:focus,textarea:acti
     top: 50%;
     transform: translateY(-50%) rotate(225deg);
   }
+
+
+  input:-webkit-autofill+label, input:-webkit-autofill:hover+label, input:-webkit-autofill:focus+label, textarea:-webkit-autofill+label, textarea:-webkit-autofill:hover+label, textarea:-webkit-autofill:focus+label, select:-webkit-autofill+label, select:-webkit-autofill:hover+label, select:-webkit-autofill:focus +label {
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+    background-color: var(--dark) !important;
+    color: var(--primary) !important;
+    border-radius: 2px;
+    padding: 0 4px;
+}
+
+.hover-input:not(:placeholder-shown)+label{
+    transform: translateX(-5px) translateY(-10.5px);
+    background-color: var(--dark) !important;
+    color: var(--primary) !important;
+    border-radius: 2px;
+    padding: 0 2px;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.chat-section{
+  grid-template-rows:auto 1fr auto !important;
+}
