@@ -1,9 +1,10 @@
-import { useContext, useEffect, useState } from "react"
+import { createRef, useContext, useEffect, useState } from "react"
 import Input from "../../components/input";
-import { Link, useNavigate } from "react-router-dom";
-import {apiInstance} from "../../hooks/useFetch";
+import { Link } from "react-router-dom";
+import useFetch from "../../hooks/useFetch";
 import { ToastContext } from "../../contexts";
 import { useLocation } from "react-router-dom";
+import {BarLoader} from 'react-spinners'
 
 
 
@@ -11,9 +12,10 @@ function Signup({setActivePage}){
     const {setToastMsg} = useContext(ToastContext)
     const [verify,setVerify] = useState(false)
     const location = useLocation();
-    const [signupDetails,setSignupDetails] = useState({
-        email:"",password:""
-    });
+    const [token,setToken] = useState("")
+    const [signupDetails,setSignupDetails] = useState();
+
+    const [data,error,loading] = useFetch(`/user/${verify==true?"verify":"signup"}`,{...signupDetails,token},[signupDetails])
 
     function handleSubmit(e){
         e.preventDefault()
@@ -47,36 +49,18 @@ function Signup({setActivePage}){
     useEffect(()=>{
         if(location.search){
             const searchParams = new URLSearchParams(location.search)
-            const token = searchParams.get("token")
+            setToken(searchParams.get("token"))
             if(token) setVerify(true)
             setActivePage(1)
         }
-        console.log(verify)
     },[])
 
     useEffect(()=>{
-        console.log(signupDetails)
-        if(signupDetails.email || signupDetails.userName){
-            const searchParams = new URLSearchParams(location.search)
-            const token = searchParams.get("token")
-            
-            apiInstance.post(`/user/${verify==true?"verify":"signup"}`,{...signupDetails,token})
-            .then((res)=>{
-                console.log(res)
-                const {data} = res 
-                setToastMsg({type:"success",message:data.message})
-                setActivePage(1)
-            })
-            .catch(err=>{
-                const {data} = err.response
-                setToastMsg({type:"error",message:data.message})
-                if(data.status==409) {
-                    setSignupDetails({})
-                    setActivePage(0)
-                }
-            })
+        if(data){
+            setToastMsg({type:"success",message:data.message})
+            setActivePage(1)
         }
-    },[signupDetails])
+    },[data])
 
 
     return(
@@ -103,7 +87,14 @@ function Signup({setActivePage}){
 
                     <div className="buttons-wrapper flex flex-col mt-4">
                         <div className="flex gap-[10px]">
-                            <button className="bg-green-600 border-[1px] border-black p-2 px-4 rounded-md hover:bg-dark hover:text-primary hover:border-primary duration-300">Signup</button>
+                            <button className="bg-green-600 relative border-[1px] border-black p-2 px-4 rounded-md ${loading?'opacity-50 cursor-not-allowed':'hover:bg-dark hover:text-primary hover:border-primary'}`} duration-300">
+                            {loading&&(
+                                    <div className="absolute flex justify-center left-1/2 bottom-1 -translate-x-1/2">
+                                        <BarLoader width={50} color="#f6d7b7" loading={loading} height={2}/>
+                                    </div>
+                                )}
+                                Signup
+                            </button>
                             <button className="bg-green-600 border-[1px] border-black p-2 px-4 rounded-md hover:bg-dark hover:text-primary hover:border-primary duration-300" type="button">
                                 <Link to={'/forgot'}>
                                     Forgot Password

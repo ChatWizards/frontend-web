@@ -2,7 +2,8 @@ import { useContext, useEffect, useState } from "react"
 import { UserContext } from "../../contexts/userContext";
 import Input from "../../components/input";
 import { Link, useNavigate } from "react-router-dom";
-import {apiInstance} from "../../hooks/useFetch";
+import {MoonLoader,BarLoader} from 'react-spinners'
+import useFetch, {apiInstance} from "../../hooks/useFetch";
 import { ToastContext } from "../../contexts";
 
 function Login({setActivePage}){
@@ -10,37 +11,43 @@ function Login({setActivePage}){
     const {setUser} = useContext(UserContext)
     const navigate = useNavigate();
 
-    const [loginDetails,setLoginDetails] = useState(
-        {email:"",
-        password:""
-    });
+    const [loginDetails,setLoginDetails] = useState();
 
 
 
-    async function handleSubmit(e){
+    function handleSubmit(e){
         e.preventDefault();
         const {email,password} = e.target
         setLoginDetails((prev)=>(
-            {...prev,email:email.value,password:password.value}
+            {email:email.value,password:password.value}
         ))
     }
 
+    // useEffect(()=>{
+    //     if(loginDetails.email){
+    //         apiInstance.post('/user/login',{...loginDetails})
+    //         .then((res)=>{
+    //             const {response} = res.data 
+    //             setUser({userName:response.userName,email:response.email,token:response.token,profilePic:response.profilePic})
+    //             setToastMsg({type:"success",message:response.message})
+    //             navigate('/')
+    //         })
+    //         .catch(err=>{
+    //             console.log(err)
+    //             const {data} = err.response
+    //             setToastMsg({type:"error",message:data.message})
+    //         })
+    //     }
+    // },[loginDetails])
+
+    const [data,error,loading] = useFetch('/user/login','post',loginDetails,[loginDetails])
+
     useEffect(()=>{
-        if(loginDetails.email){
-            apiInstance.post('/user/login',{...loginDetails})
-            .then((res)=>{
-                const {response} = res.data 
-                setUser({userName:response.userName,email:response.email,token:response.token,profilePic:response.profilePic})
-                setToastMsg({type:"success",message:response.message})
-                navigate('/')
-            })
-            .catch(err=>{
-                console.log(err)
-                const {data} = err.response
-                setToastMsg({type:"error",message:data.message})
-            })
+        if(data) {
+            setUser(data.response)
+            navigate('/')
         }
-    },[loginDetails])
+    },[data])
 
     return(
         <section className="login-wrapper flex items-center w-1/2">
@@ -50,7 +57,14 @@ function Login({setActivePage}){
                     <Input label="Password" required={true} name="password" type="password" id="email-password"></Input>
                     <div className="buttons-wrapper flex flex-col">
                         <div className="flex gap-[10px]">
-                            <button className="bg-green-600 border-[1px] border-black p-2 px-4 rounded-md hover:bg-dark hover:text-primary hover:border-primary duration-300">Login</button>
+                            <button className={`bg-green-600 relative border-[1px] border-black p-2 px-4 rounded-md duration-300 ${loading?'opacity-50 cursor-not-allowed':'hover:bg-dark hover:text-primary hover:border-primary'}`}>
+                                {loading&&(
+                                    <div className="absolute flex justify-center left-1/2 bottom-1 -translate-x-1/2">
+                                        <BarLoader width={50} color="#f6d7b7" loading={loading} height={2}/>
+                                    </div>
+                                )}
+                                Login
+                            </button>
                             <button className="bg-green-600 border-[1px] border-black p-2 px-4 rounded-md hover:bg-dark hover:text-primary hover:border-primary duration-300" type="button">
                                 <Link to={'/forgot'}>
                                     Forgot Password

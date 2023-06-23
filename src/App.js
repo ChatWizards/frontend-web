@@ -4,16 +4,23 @@ import SideNav from './components/sideNav'
 import {BrowserRouter as Router,Route,Routes, Navigate} from 'react-router-dom'
 import Component from './components'
 import {Auth,Reset} from './pages/auth'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import {UserContext,ChatProvider, ToastContext} from './contexts'
 import ProtectedRoute from './components/protectedRoute'
-import Modal,{ InviteModal } from './components/modals'
+import Modal from './components/modals'
 // import useToast from './hooks/useToast'
 
 function App() {
   const [chatType,setChatType] = useState("user") 
   const {user} = useContext(UserContext)
   const [modalInfo,setModalInfo] = useState({active:false,type:"",name:""})
+
+  useEffect(()=>{
+    if(!user.userName||!user.token){
+      setModalInfo({active:false,type:"",name:""})
+    }
+  },[user])
+
   return (      
   <ChatProvider>
     <div className="App w-screen h-screen bg-dark">
@@ -39,7 +46,7 @@ function App() {
           </Routes>
         {user.token&&<SideNav setModalInfo={setModalInfo} chatType={chatType} setChatType={setChatType}></SideNav>}
       </Router>
-      {modalInfo.active&&<Modal modalInfo={modalInfo} setModalInfo={setModalInfo}></Modal>}
+      {user.token&&modalInfo.active&&<Modal modalInfo={modalInfo} setModalInfo={setModalInfo}></Modal>}
     </div>
   </ChatProvider>
   );

@@ -60,7 +60,7 @@ function ChatSection(props){
                 setMessages(data.response)
             })
         }
-    },[chatState.chatId,chatState.messages])
+    },[chatState.chatId])
 
     useEffect(()=>{
         chatDispatch({type:"SET_CHAT_MESSAGES",payload:messages})

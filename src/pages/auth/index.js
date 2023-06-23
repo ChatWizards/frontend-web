@@ -27,7 +27,7 @@ function Auth(){
 }
 
 function Reset(){
-    const [activePage,setActivePage] = useState(1)
+    const [activePage,setActivePage] = useState(0)
 
     useEffect(()=>{
         console.log(activePage)

@@ -1,8 +1,17 @@
 import {useContext} from 'react'
-import {UserContext} from '../../contexts'
+import {ToastContext, UserContext} from '../../contexts'
+import { ButtonPrimary } from '../button'
 
 function ProfileModal(){
-    const {user} = useContext(UserContext)
+    const {user,setUser} = useContext(UserContext)
+    const {setToastMsg} = useContext(ToastContext)
+
+    function logOut(){
+        sessionStorage.removeItem("user")
+        setUser({})
+        setToastMsg({type:"success",message:"User Logged out successfully"})
+    }
+
     return(
         <>
         <div className="flex flex-col border-b-2 border-dark pb-3">
@@ -31,6 +40,9 @@ function ProfileModal(){
 
             </div>
             </article>
+            <div className='flex mt-3 items-center m-auto'>
+                <ButtonPrimary onClick={logOut}>Log Out</ButtonPrimary>
+            </div>
         </div>
         <div className="flex flex-col">
             <h1 className="text-xl text-white font-bold ps-3 py-2 font-mono uppercase">Groups</h1>

@@ -3,7 +3,8 @@ import { Button, ButtonAmetyst, ButtonPrimary } from "./button"
 import Input from "./input"
 import { useContext } from "react"
 import { ToastContext, UserContext } from "../contexts"
-function CreateChat({setAddChat,sendInvite}){
+
+function CreateChat(){
     const {setToastMsg} = useContext(ToastContext)
     const {user} = useContext(UserContext)
 
@@ -29,16 +30,11 @@ function CreateChat({setAddChat,sendInvite}){
     }
 
     return(
-        <section className="bg-primary rounded-md p-2 absolute top-1/2 -translate-y-1/2 left-10 z-50">
-            <div className="w-[250px]">
-            <h1 className="">Add Chat</h1> 
-            <form onSubmit={handleSubmit}>
-            <Input name="contact" placeholder="Enter email or username" required="true"></Input> 
-                <div className="inline-block m-auto space-x-3 pt-3">
-                    <ButtonAmetyst type="submit">Send Invite</ButtonAmetyst>
-                    <ButtonPrimary type="button" onClick={()=>setAddChat(false)}>Close</ButtonPrimary>
-                </div> 
-            </form> 
+        <section className="bg-dark rounded-md p-2">
+            <h1 className="text-lg uppercase font-mono font-medium text-white">Indivisual Chat</h1>
+            <div className="flex gap-2">
+                <Input name="contact" placeholder="Enter email or username" required="true"></Input> 
+                <ButtonPrimary type="submit">Add</ButtonPrimary>
             </div>            
         </section>
     )

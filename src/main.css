@@ -134,3 +134,7 @@ input:-webkit-autofill{
 .chat-section{
   grid-template-rows:auto 1fr auto !important;
 }
+
+textarea{
+  resize: none;
+}

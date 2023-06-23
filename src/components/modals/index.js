@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import InviteModal from './inviteModel'
+import InviteModal from './inviteModal'
+import GroupChatModal from './chatModal'
 import ProfileModal from './profileModal'
 
 function Modal({modalInfo,setModalInfo}){
@@ -26,6 +27,7 @@ function Modal({modalInfo,setModalInfo}){
             </div>
             {modalInfo.type=="invite"&&<InviteModal></InviteModal>}
             {modalInfo.type=="profile"&&<ProfileModal></ProfileModal>}
+            {modalInfo.type=="groupChat"&&<GroupChatModal></GroupChatModal>}
             {modalInfo.type=="settings"&&<div>settings section</div>}
         </div>
         </section>

@@ -5,7 +5,7 @@ const inialState = {userName:"",token:"",profilePic:"",email:""}
 const UserContext = React.createContext(inialState);
 
 export default function UserProvider(props){
-    const [user,setUser] = useSessionStorage("user",inialState)
+    const [user,setUser] = useSessionStorage("user",{})
     
     useEffect(()=>{
         console.log(user)

@@ -1,7 +1,7 @@
 import { Tooltip } from 'react-tooltip'
 import AddChat from './addChat'
-import { useContext, useEffect, useState } from 'react';
-import { UserContext } from '../contexts';
+import { useContext, useState } from 'react';
+import {  UserContext } from '../contexts';
 
 function SideNav({setChatType,chatType,setModalInfo}){
     const [addChat,setAddChat] = useState(false)
@@ -28,9 +28,8 @@ function SideNav({setChatType,chatType,setModalInfo}){
             <div className="chat-icons p-2">
             <ul className="flex flex-col gap-2 pt-16 relative">
                     <li data-tooltip-id="add_chat" data-tooltip-content="add group or indivisual chat" data-tooltip-place="left" className='relative' aria-roledescription="chats" >
-                        <img src="/icons/new_chat.svg" width={30} height={30} alt="" className={`p-1 rounded-full text-lg relative bg-white py-2 hover:bg-opacity-10 duration-200 hover:bg-white shadow-xl shadow-dark`} onClick={()=>setAddChat(true)}/>
+                        <img src="/icons/new_chat.svg" width={30} height={30} alt="" className={`p-1 rounded-full text-lg relative bg-white py-2 hover:bg-opacity-10 duration-200 hover:bg-white shadow-xl shadow-dark`} onClick={()=>setModalInfo((prev)=>({...prev,active:true,type:"groupChat",name:"Add new Group Chat"}))}/>
                         <Tooltip className='rounded-3xl text-primary font-mono font-semibold' id="add_chat"/>
-                        {addChat&&<AddChat setAddChat={setAddChat}></AddChat>}
                     </li>
                     <li className='relative' data-tooltip-id="show_invites" data-tooltip-content="show invites" data-tooltip-place="left"  aria-roledescription="invites">
                         <img src="/icons/invite.png" width={30} height={30} alt="" className={`p-1 rounded-full text-lg relative bg-secondary border-primary border-2 hover:bg-primary duration-200 shadow-xl shadow-dark`} onClick={()=>setModalInfo((prev)=>({...prev,active:true,type:"invite",name:"Invite section"}))}/>
