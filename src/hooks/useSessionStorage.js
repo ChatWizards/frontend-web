@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 function useSessionStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(() => {
     const storageValue = window.sessionStorage.getItem(key);
-    return storageValue!={} ? JSON.parse(storageValue) : initialValue;
+    return storageValue? JSON.parse(storageValue) : initialValue;
   });
 
   useEffect(() => {
