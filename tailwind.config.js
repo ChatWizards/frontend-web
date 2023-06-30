@@ -3,6 +3,9 @@ module.exports = {
   content: ["./src/**/*.{html,js,jsx}"],
   theme: {
     extend: {
+      fonts:{
+        'archivo':['Archivo', 'sans-serif']
+      },
       colors:{
         "primary-blue":"#66C3FF",
         "secondary-blue":"#92AEF1",
@@ -17,7 +20,8 @@ module.exports = {
         "light-text":"var(--light-text)",
         "primary":"var(--primary)",
         "secondary":"var(--secondary)",
-        "dark":"var(--dark)"
+        "dark":"var(--dark)",
+        "dark-200":"var(--light-dark)"
       }
     }
   },

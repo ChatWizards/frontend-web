@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 :root{
@@ -10,6 +10,7 @@
     --primary:#7754B2;
     --text:#eeeff6;
     --light-text:#7c7e91;
+    --light-dark:#1d1b2e9e
 }
 *{
   list-style-type: none;
@@ -18,7 +19,13 @@
 input:focus,input:active,select:focus,select:active,textarea:focus,textarea:active{
   outline: none;
 }
-  .message-text.primary::before {
+
+input:-webkit-autofill{
+    background-color: var(--dark) !important;
+    color: var(--primary) !important;
+}
+  
+.message-text.primary::before {
     content: "";
     width: 0;
     height: 0;
@@ -105,3 +112,40 @@ input:focus,input:active,select:focus,select:active,textarea:focus,textarea:acti
     top: 50%;
     transform: translateY(-50%) rotate(225deg);
   }
+
+
+  input:-webkit-autofill+label, input:-webkit-autofill:hover+label, input:-webkit-autofill:focus+label, textarea:-webkit-autofill+label, textarea:-webkit-autofill:hover+label, textarea:-webkit-autofill:focus+label, select:-webkit-autofill+label, select:-webkit-autofill:hover+label, select:-webkit-autofill:focus +label {
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+    background-color: var(--dark) !important;
+    color: var(--primary) !important;
+    border-radius: 2px;
+    padding: 0 4px;
+}
+
+.hover-input:not(:placeholder-shown)+label{
+    transform: translateX(-5px) translateY(-10.5px);
+    background-color: var(--dark) !important;
+    color: var(--primary) !important;
+    border-radius: 2px;
+    padding: 0 2px;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.chat-section{
+  grid-template-rows:auto 1fr auto !important;
+}
+
+textarea{
+  resize: none;
+}
+
+.hide-scroll::-webkit-scrollbar{
+  appearance: none;
+}
+.hide-scroll::-webkit-scrollbar-track{
+  appearance: none;
+}
+.hide-scroll::-webkit-scrollbar{
+  appearance: none;  
+}

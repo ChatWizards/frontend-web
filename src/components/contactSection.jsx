@@ -1,20 +1,88 @@
+import { useContext, useEffect, useRef, useState } from "react";
 import Contact from "./contact";
 import SearchBar from "./search";
+import useFetch, { apiInstance } from "../hooks/useFetch";
+import { ChatContext, UserContext } from "../contexts";
 
 function ContactSection(props){
+    const {user} = useContext(UserContext) 
+    const {chatState,chatDispatch} = useContext(ChatContext)
+    const [searchQuery,setSearchQuery] = useState()
+
+    useFetch({url:'/chat',method:"get",config:{user}},[],(data,error,loading)=>{
+        if(data){
+            props.setChats(() => data && data.response.flatMap((ele) => {
+                    const {users} = ele
+                    const receiver = users.filter((i)=>i.userName!==user.userName)
+                    return ele.chatType==="group"?{...ele,chatId:ele._id}:{users:receiver,chatId:ele._id,chatType:ele.chatType,chatName:ele.chatName,lastMessage:ele.lastMessage,profilePic:receiver[0].profilePic}
+              }))
+        }
+    })
+
+    useEffect(()=>{
+        console.log(props.chats)
+    },[props.chats])
+
+    useEffect(()=>{
+    },[searchQuery])
+
     return(
         <section className="contact-section flex flex-col gap-2 p-2 bg-dark shadow-md border-e-2 border-primary h-screen">
             <div className="pb-3 space-y-2 border-b-[1px] border-secondary">
-            <h1 className="text-2xl text-center text-white">User Chat</h1>
-            <SearchBar></SearchBar>
+            <h1 className="text-2xl text-center text-white">{props.chatType=="indivisual"?"User":"Group"} Chat</h1>
+            <SearchBar setSearchQuery={setSearchQuery}></SearchBar>
             </div>
-            <div className="contacts-wrapper relative overflow-auto flex gap-2 justify-center flex-col items-center">
-                <Contact userName="user1" lastText="See you soon punk!!!!" isActive="true" img="/logo192.png" activeTime="9:00PM"></Contact>
-                <Contact userName="user1" lastText="See you soon punk!!!!" isActive="true" img="/logo192.png" activeTime="9:00PM"></Contact>
-                <Contact userName="user1" active={true} lastText="See you soon punk!!!!" isActive="true" img="/logo192.png" activeTime="9:00PM"></Contact>
-                <Contact userName="user1" lastText="See you soon punk!!!!" isActive="true" img="/logo192.png" activeTime="9:00PM"></Contact>
-                <Contact userName="user1" lastText="See you soon punk!!!!" isActive="true" img="/logo192.png" activeTime="9:00PM"></Contact>
-                <Contact userName="user1" lastText="See you soon punk!!!!" isActive="true" img="/logo192.png" activeTime="9:00PM"></Contact>
+            <div className="chats-wrapper relative overflow-auto flex gap-2 justify-center flex-col items-center">
+                {
+                    searchQuery?(
+                        props.chats.filter((i) => i.userName.includes(searchQuery)).length === 0 ? (
+                            <h1 className="text-primary text-2xl text-center font-mono inline-block m-auto">
+                              No chats with {searchQuery} are found
+                            </h1>
+                          ) :
+                        props.chats.filter((i)=>{
+                            return i.userName.includes(searchQuery)})
+                                   .map(i=><Contact onClick={()=>chatDispatch({
+                                                type:"SET_CHAT",
+                                                payload:{
+                                                    chatId:i.chatId,
+                                                    chatName:i.chatName,
+                                                    chatImage:i.chatType=="group"?i.groupPic:i.profilePic,
+                                                    isGroupChat:i.chatType==="group",
+                                                    users:i.users
+                                                }
+                                                })} 
+                                            key={i.chatId} 
+                                            profilePic={i.chatType=="group"?i.groupPic:i.profilePic} 
+                                            userName={i.chatName} 
+                                            lastMessage={i.lastMessage&&i.lastMessage.content}
+                                            active={chatState.chatId==i.chatId}>
+                                            </Contact>)
+                    ):
+                    (
+                        props.chats.filter((ele)=>ele.chatType==props.chatType).length?(
+                        props.chats.filter((ele)=>ele.chatType==props.chatType).map((i)=>{
+                            return <Contact onClick={()=>chatDispatch({
+                                                            type:"SET_CHAT",
+                                                                payload:{
+                                                                    chatId:i.chatId,
+                                                                    chatName:i.chatType=="group"?i.chatName:i.users[0].userName,
+                                                                    chatImage:i.chatType=="group"?i.groupPic:i.users[0].profilePic,
+                                                                    isGroupChat:i.chatType==="group",
+                                                                    users:i.users
+                                                                }
+                                                            })} 
+                                            key={i.chatId} 
+                                            profilePic={i.chatType=="group"?i.groupPic:i.users[0].profilePic} 
+                                            userName={i.chatName||i.users[0].userName} 
+                                            active={chatState.chatId==i.chatId}
+                                            lastMessage={i.lastMessage&&i.lastMessage.content}
+                                            messageState={i.lastMessage&&i.lastMessage.timeStamp}
+                                            lastMessageSender = {i.lastMessage&&i.lastMessage.sender.userName}
+                                            ></Contact>
+                        })):(<h1>No group Chats</h1>)
+                    )
+                }
             </div>
         </section>
     )
