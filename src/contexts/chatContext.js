@@ -4,17 +4,19 @@ import chatReducer from '../reducers/chatReducer'
 const ChatContext = React.createContext({});
 
 let initialState = {
-    chatid:"",
+    chatId:"",
     chatName:"",
     chatImage:"",
-    groupMembers:[],
+    users:[],
     isGroupChat:true,
     messages:[],
+    chatPic:''
 }
 
 
 export default function ChatProvider(props){
     const [chatState, chatDispatch] = useReducer(chatReducer, initialState);
+
     useEffect(()=>{
         console.log(chatState)
     },[chatState])

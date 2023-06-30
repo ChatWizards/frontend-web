@@ -11,7 +11,7 @@ function ResetPassword(props){
     const [token,setToken] = useState()
     const {setToastMsg} = useContext(ToastContext)
     let [searchParams] = useSearchParams();
-    const [data,error,loading] = useFetch('/user/resetPassword','post',{password:newPassword,token},[newPassword])
+    const [data,error,loading] = useFetch({url:'/user/resetPassword',method:'post',postData:{password:newPassword,token}},[newPassword])
     const navigate = useNavigate()
 
 

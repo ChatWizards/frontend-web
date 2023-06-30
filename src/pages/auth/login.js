@@ -17,42 +17,27 @@ function Login({setActivePage}){
 
     function handleSubmit(e){
         e.preventDefault();
+        console.log("submitted")
         const {email,password} = e.target
         setLoginDetails((prev)=>(
             {email:email.value,password:password.value}
         ))
     }
 
-    // useEffect(()=>{
-    //     if(loginDetails.email){
-    //         apiInstance.post('/user/login',{...loginDetails})
-    //         .then((res)=>{
-    //             const {response} = res.data 
-    //             setUser({userName:response.userName,email:response.email,token:response.token,profilePic:response.profilePic})
-    //             setToastMsg({type:"success",message:response.message})
-    //             navigate('/')
-    //         })
-    //         .catch(err=>{
-    //             console.log(err)
-    //             const {data} = err.response
-    //             setToastMsg({type:"error",message:data.message})
-    //         })
-    //     }
-    // },[loginDetails])
-
-    const [data,error,loading] = useFetch('/user/login','post',loginDetails,[loginDetails])
+    const [data,error,loading] = useFetch({url:'/user/login',method:'post',postData:loginDetails},[loginDetails])
 
     useEffect(()=>{
         if(data) {
             setUser(data.response)
             navigate('/')
         }
+        console.log(data)
     },[data])
 
     return(
-        <section className="login-wrapper flex items-center w-1/2">
-                <form onSubmit={(e)=>handleSubmit(e)} className="w-full h-full flex flex-col justify-between items-center p-4 md:px-8 gap-2 rounded-l-md">
-                    <h1 className="text-3xl mb-3 text-green-600 font-bold">Login</h1>
+        <section className="login-wrapper flex items-center w-full h-full">
+                <form onSubmit={(e)=>handleSubmit(e)} className="w-full h-full flex flex-col justify-evenly items-center p-4 md:px-8 gap-10 rounded-l-md">
+                    <h1 className="text-2xl relative top-3 sm:top-0 sm:text-3xl sm:mb-3 text-green-600 font-bold">Login</h1>
                     <Input label="Email" required={true} name="email" type="email" id="email-login"></Input>
                     <Input label="Password" required={true} name="password" type="password" id="email-password"></Input>
                     <div className="buttons-wrapper flex flex-col">

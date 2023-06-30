@@ -1,18 +1,16 @@
 import React, { useContext, useEffect, useState } from "react"
 import useSessionStorage from '../hooks/useSessionStorage'
+import useSocket from "../hooks/useSocket";
+
 
 const inialState = {userName:"",token:"",profilePic:"",email:""}
 const UserContext = React.createContext(inialState);
 
 export default function UserProvider(props){
     const [user,setUser] = useSessionStorage("user",{})
-    
-    useEffect(()=>{
-        console.log(user)
-    },[user])
-
+    const [socket] = useSocket(user)
     return(
-        <UserContext.Provider value={{user,setUser}}>
+        <UserContext.Provider value={{user,setUser,socket}}>
             {props.children}
         </UserContext.Provider>
     )

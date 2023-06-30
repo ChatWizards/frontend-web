@@ -5,14 +5,16 @@ import {BrowserRouter as Router,Route,Routes, Navigate} from 'react-router-dom'
 import Component from './components'
 import {Auth,Reset} from './pages/auth'
 import { useContext, useEffect, useState } from 'react'
-import {UserContext,ChatProvider, ToastContext} from './contexts'
+import {UserContext,ChatProvider, ContactContext,ContactProvider} from './contexts'
 import ProtectedRoute from './components/protectedRoute'
 import Modal from './components/modals'
+import useFetch from './hooks/useFetch'
 // import useToast from './hooks/useToast'
 
 function App() {
-  const [chatType,setChatType] = useState("user") 
+  const [chatType,setChatType] = useState("indivisual") 
   const {user} = useContext(UserContext)
+  const {setContacts} = useContext(ContactContext)
   const [modalInfo,setModalInfo] = useState({active:false,type:"",name:""})
 
   useEffect(()=>{
@@ -21,7 +23,9 @@ function App() {
     }
   },[user])
 
+
   return (      
+    <ContactProvider>
   <ChatProvider>
     <div className="App w-screen h-screen bg-dark">
       <Router>
@@ -49,6 +53,7 @@ function App() {
       {user.token&&modalInfo.active&&<Modal modalInfo={modalInfo} setModalInfo={setModalInfo}></Modal>}
     </div>
   </ChatProvider>
+    </ContactProvider>
   );
 }
 

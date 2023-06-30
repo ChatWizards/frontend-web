@@ -17,7 +17,7 @@ function ForgotPassword({setActivePage}){
         setforgotDetails({email:email.value})       
     }
 
-    const [data,error,loading] = useFetch('/user/forgotPassword','post',forgotDetails,[forgotDetails])
+    const [data,error,loading] = useFetch({url:'/user/forgotPassword',method:'post',postData:forgotDetails},[forgotDetails])
 
     useEffect(()=>{
         const token = searchParams.get("token")

@@ -1,17 +1,20 @@
 import SearchBar from "../search";
 import { useContext, useEffect, useState } from "react";
 import Input from '../input'
-import {ButtonAmetyst} from '../button'
-import axios from "axios";
+import {ButtonAmetyst,Button} from '../button'
+import axios, { all } from "axios";
 import useFetch, { apiInstance } from "../../hooks/useFetch";
 import {BounceLoader} from 'react-spinners'
-import { UserContext } from "../../contexts";
+import { UserContext ,ToastContext} from "../../contexts";
+import { ContactContext } from "../../contexts/contactContext";
 
 export default function InviteModal(){
     const {user} = useContext(UserContext)
-    const [invites,setInvites] = useState([
-    ])
+    const {setContacts} = useContext(ContactContext)
+    const {setToastMsg} = useContext(ToastContext)
+    const [invites,setInvites] = useState([])
     const [userDetail,setUserDetail] = useState()
+    const [type,setType] = useState("all")
 
     function handleSubmit(e){
         e.preventDefault()
@@ -19,11 +22,44 @@ export default function InviteModal(){
         if(contact.value) setUserDetail(contact.value)
     }
 
+    function parseDate(time){
+        return time.substr(0,10)
+    }
+
+    function parseTime(time){
+        let k = time.substr(12,4)
+        let day = "Am"
+        k = k.split(":")
+        if(Number(k[0])>12){
+            k[0] = String(Number(k[0])-12)
+            day = "Pm"
+        }
+        return k.join(":")+" "+day
+    }
+
+    async function acceptInvite(id){
+        const res = await apiInstance.put(`/user/updateInvite/${id}`, { inviteStatus: "accepted" }, { headers: { 'Authorization': `Bearer ${user.token}` } });
+        const {data} = res
+        setInvites((prev)=>{
+            return prev.map((i)=>{
+                if(i._id==id){
+                    i.inviteStatus = data.response.invite.inviteStatus
+                }
+                return i
+            })
+        })
+        setContacts((prev)=>([...prev,data.response.contact]))
+    }
+
+    function deleteInvite(id){
+        apiInstance.delete(`/user/deleteInvite/${id}`,{headers:{'Authorization':`Bearer ${user.token}`}})
+        setInvites((prev)=>(prev.filter((item)=>item._id!==id)))
+    }
+
     const [getData,error,loading] = useFetch({url:'/user/invite',method:'get',config:{user}})
 
     useEffect(()=>{
         if(getData){
-            console.log(getData)
             setInvites(getData.response)
         }
     },[getData])
@@ -32,9 +68,14 @@ export default function InviteModal(){
         if(userDetail){
             async function fetchData(){
                 try{
-                    const {data} = await axios.post("http://localhost:4000/user/invite",{contact:userDetail},{headers:{'Authorization':`Bearer ${user.token}`}})
-                    console.log(data)
-                    setInvites((prev)=>([...prev,data.response]))
+                    const res = await axios.post("http://localhost:4000/user/invite",{contact:userDetail},{headers:{'Authorization':`Bearer ${user.token}`}})
+                    if(res.status==200){
+                        setInvites((prev)=>([...prev,res.data.response]))
+                        setToastMsg({type:"success",message:"invitation sent successfully."})
+                    }else if(res.status==204){
+                        setToastMsg({type:"success",message:"User is invited via Mail"})
+                    }
+                    setUserDetail("")
                 }
                 catch(err){
                     console.log(err)
@@ -45,32 +86,47 @@ export default function InviteModal(){
     },[userDetail])
 
     useEffect(()=>{
-        console.log(invites)
-    },[invites])
+    },[invites,type])
 
     return(
-        <>
+        <section>
         <div className="px-4 py-2 bg-dark" id="send-invite">
             <SearchBar></SearchBar>
         </div>    
         <h1 className="font-mono text-white pt-3 ps-3 mx-2 border-b-2">Invites</h1>
+        <div className="flex justify-center items-center gap-1 border-2 w-fit m-auto rounded-md mt-2 shadow-sm border-primary shadow-dark">
+            <button onClick={()=>{setType("sent")}} className={`p-1 px-2 rounded-md text-md relative hover:bg-primary duration-200 hover:opacity-90 ${type=="sent"?"bg-primary":"bg-secondary"}`}>Sent</button>
+            <button onClick={()=>{setType("received")}} className={`p-1 px-2 rounded-md text-md relative hover:bg-primary duration-200 hover:opacity-90  ${type=="received"?"bg-primary":"bg-secondary"}`}>received</button>
+            <button onClick={()=>{setType("all")}} className={`p-1 px-2 rounded-md text-md relative hover:bg-primary duration-200 hover:opacity-90  ${type=="all"?"bg-primary":"bg-secondary"}`}>All</button>
+        </div>
         <div className="space-y-2 overflow-y-scroll pt-3 h-[300px] px-1 mx-1" id="invites">
             {
                 loading?<BounceLoader></BounceLoader>:
-                invites.map((ele)=>(
-                    <article className="invite w-full h-16 flex gap-2 relative rounded-sm border-[1px] border-primary">
+                invites.length?
+                invites.filter((i)=>{
+                    if(type==="sent") return i.sender.userName == user.userName
+                    else if(type==="received") return i.receiver.userName == user.userName
+                    else return true
+                })
+                .map((ele)=>(
+                    <article className="group invite w-full h-16 flex gap-2 overflow-hidden relative rounded-sm border-[1px] border-primary" key={ele._id}>
                     <div className="flex items-center w-fit h-full ps-2">
                         <img src={ele.receiver.profilePic} className="rounded-full bg-primary" alt="img" height={50} width={50}/>
                     </div>
                     <article className="flex items-center">
                         <p className="invitation-header flex flex-col relative">
-                            <span className="text-lg text-primary">{ele.receiver.userName}</span>
-                            <span className="text-sm text-white ps-2">{ele.inviteStatus}</span>
+                            <span className="text-lg text-primary text-center">{ele.receiver.userName}</span>
+                            <span className="text-xs text-white ps-2">{ele.inviteStatus}</span>
                         </p>
                     </article>
-                    <span className="absolute top-3 right-3 text-xs text-light-text">{ele.timeStamp}</span>
+                    <span className="absolute top-2 right-3 text-xs text-light-text">{parseDate(ele.timeStamp)}</span>
+                    <span className="absolute top-6 right-3 text-[7.5px] text-light-text">{parseTime(ele.timeStamp)}</span>
+                    <div className="flex items-center absolute h-full px-2 right-0 top-1/2 -translate-y-1/2 translate-x-full gap-2 duration-150 bg-dark group-hover:translate-x-0">
+                        <img className="p-1 duration-300 hover:bg-primary rounded text-red-300" src="/icons/delete.png" style={{width:"32px",aspectRatio:"1 / 1"}} onClick={()=>deleteInvite(ele._id)}/>
+                        {user.userName==ele.receiver.userName&&<img className="p-1 duration-300 hover:bg-primary rounded text-red-300" src="/icons/accept.svg" style={{width:"35px",aspectRatio:"1 / 1"}} onClick={()=>acceptInvite(ele._id)}/>}
+                    </div>
                 </article>
-                ))
+                )):<h1>No invites</h1>
             }
         </div>
         <h1 className="font-mono text-white pt-3 ps-3 mx-2 border-b-2">Send Invite</h1>
@@ -80,6 +136,6 @@ export default function InviteModal(){
                 <ButtonAmetyst>Send</ButtonAmetyst>
             </form>
         </div>
-    </>
+    </section>
     )
 }

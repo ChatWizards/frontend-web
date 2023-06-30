@@ -15,7 +15,7 @@ function Signup({setActivePage}){
     const [token,setToken] = useState("")
     const [signupDetails,setSignupDetails] = useState();
 
-    const [data,error,loading] = useFetch(`/user/${verify==true?"verify":"signup"}`,{...signupDetails,token},[signupDetails])
+    const [data,error,loading] = useFetch({url:`/user/${verify==true?"verify":"signup"}`,method:"post",postData:{...signupDetails,token}},[signupDetails])
 
     function handleSubmit(e){
         e.preventDefault()
@@ -64,8 +64,8 @@ function Signup({setActivePage}){
 
 
     return(
-        <section className="signup-wrapper flex items-center w-1/2">
-                <form onSubmit={(e)=>handleSubmit(e)} className="flex w-full h-full flex-col justify-between items-center p-4 gap-2 rounded-r-md">
+        <section className="signup-wrapper flex items-center w-full">
+                <form onSubmit={(e)=>handleSubmit(e)} className="w-full h-full flex flex-col justify-between items-center p-4 md:px-8 gap-2 rounded-l-md">
                     <h1 className="text-3xl mb-3 text-green-600 font-bold">Signup</h1>
                     {!verify&&(
                     <div className="flex flex-col gap-4 items-center">

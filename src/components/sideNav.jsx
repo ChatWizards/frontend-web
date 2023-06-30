@@ -1,11 +1,19 @@
 import { Tooltip } from 'react-tooltip'
 import AddChat from './addChat'
 import { useContext, useState } from 'react';
-import {  UserContext } from '../contexts';
+import {  ChatContext, UserContext } from '../contexts';
 
 function SideNav({setChatType,chatType,setModalInfo}){
     const [addChat,setAddChat] = useState(false)
     const {user} = useContext(UserContext)
+    const {chatState,chatDispatch} = useContext(ChatContext)
+
+    function changeChatType(type){
+        if(chatState.chatId!==""){
+            chatDispatch({type:"GO_BACK",payload:""})
+        }
+        setChatType(type)
+    }
 
     return(
         <section className="sideNav fixed flex pb-3 z-50 flex-col top-0 l-0 bg-secondary h-screen justify-between">
@@ -14,12 +22,12 @@ function SideNav({setChatType,chatType,setModalInfo}){
                     <img src="/icons/logo.svg" alt="logo" />
                 </span>
                 <ul className="flex flex-col gap-2 pt-16">
-                        <li data-tooltip-id="user_chat" data-tooltip-content="view users" data-tooltip-place="left" className={`p-1 rounded-full text-lg ${chatType=="user"?"bg-primary":"bg-secondary hover:bg-opacity-10 duration-200 hover:bg-white"} shadow-xl shadow-dark border-[1px] border-primary`} aria-roledescription="chats" onClick={()=>setChatType("user")}>
+                        <li data-tooltip-id="user_chat" data-tooltip-content="view users" data-tooltip-place="left" className={`p-1 rounded-full text-lg ${chatType=="indivisual"?"bg-primary":"bg-secondary hover:bg-opacity-10 duration-200 hover:bg-white"} shadow-xl shadow-dark border-[1px] border-primary`} aria-roledescription="chats" onClick={()=>changeChatType("indivisual")}>
                             <img src="/icons/user_chat.svg" className="m-auto" width={20} height={20} alt="" />
                             <Tooltip className='rounded-3xl text-primary font-mono font-semibold' id="user_chat"/>
                         </li>
 
-                        <li data-tooltip-id="group_chat" data-tooltip-content="View groups" data-tooltip-place="left" className={`p-1 rounded-full text-lg ${chatType=="group"?"bg-primary":"bg-secondary hover:bg-opacity-10 duration-200 hover:bg-white"} shadow-xl shadow-dark border-[1px] border-primary`} aria-roledescription="groups" onClick={()=>setChatType("group")}>
+                        <li data-tooltip-id="group_chat" data-tooltip-content="View groups" data-tooltip-place="left" className={`p-1 rounded-full text-lg ${chatType=="group"?"bg-primary":"bg-secondary hover:bg-opacity-10 duration-200 hover:bg-white"} shadow-xl shadow-dark border-[1px] border-primary`} aria-roledescription="groups" onClick={()=>changeChatType("group")}>
                             <Tooltip className='rounded-3xl text-primary font-mono font-semibold' id="group_chat"/>
                             <img src="/icons/group_chat.svg" className="m-auto" width={20} height={20} />
                         </li>

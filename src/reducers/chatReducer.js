@@ -23,11 +23,20 @@
 
 */
 
+const initialState = {
+    chatid:"",
+    chatName:"",
+    isGroupChat:"",
+    chatImage:"",
+    groupMembers:[],
+    messages:[]
+}
+
 const chatDispatch = (state,action)=>{
     const {payload} = action
     switch(action.type){
         case "SET_CHAT":
-            return {...state,chatId:payload.chatId,chatName:payload.chatName,isGroupChat:payload.isGroupChat,chatImage:payload.chatImage}
+            return {...state,chatId:payload.chatId,chatName:payload.chatName,isGroupChat:payload.isGroupChat,chatImage:payload.chatImage,users:payload.users}
         case "ADD_GROUP_MEMBERS":
             return state 
         case "REMOVE_GROUP_MEMBERS":
@@ -35,8 +44,7 @@ const chatDispatch = (state,action)=>{
         case "RENAME_GROUP":
             return {...state,chatName:payload}
         case "SEND_MESSAGE":
-            //to update the read_by
-            return state
+            return {...state,messages:[...state.messages,payload]}
         case "SET_CHAT_MESSAGES":
             return {...state,messages:payload}
         case "UPDATE_MESSAGE":
@@ -46,7 +54,11 @@ const chatDispatch = (state,action)=>{
         case "DELETE_MESSAGE":
             return state
         case "CHANGE_ADMIN":
-            return state        
+            return state    
+        case "DELETE_CHAT":
+            return initialState 
+        case "GO_BACK":
+            return initialState  
     }
 }
 

@@ -6,43 +6,42 @@ const apiInstance = axios.create({
     baseURL:process.env.REACT_APP_BACKEND_URL,
 })
 
-function useFetch({url,method,postData,dependencies=[],config={}}){
-    if(config.user) apiInstance.defaults.headers.common['Authorization'] = `Bearer ${config.user.token}`;
+
+function useFetch({url,method,postData,config={}},dependencies=[],callback){
+    if(config.user&&config.user.token!="") apiInstance.defaults.headers.common['Authorization'] = `Bearer ${config.user.token}`;
     const { setToastMsg } = useContext(ToastContext);
-    
     const [data,setData] = useState(null)
     const [error,setError] = useState(null)
     const [loading,setLoading] = useState(false)
 
-
     useEffect(()=>{
-        console.log("called")
         let isMounted = true;
-        if(!navigator.onLine){
-            setError({type:"error",message:"No internet Connection"})
-            return
-        }
-        if (isMounted && dependencies.every(dep => dep !== null && dep !== undefined &&dep !=={})){
+        if (isMounted && dependencies.every(dep => dep !== null && dep !== undefined && Object.keys(dep).length !== 0 && dep.token !== '')){
+            console.log("called")
             async function fetchData(){
                 let res;
                 setLoading(true)
                 try{
                     if(method==="post"){
                         res = await apiInstance.post(url,postData)
-                        console.log(postData)
                     }
                     else if(method==="get"){
                         res = await apiInstance.get(url)
-                        console.log(res)
                     }
                     const {data} = res
-                    console.log(data)
                     setData(data)
-                    
-                }catch(err){
-                    console.log(err.response)
+                    if(callback && typeof callback == "function"){
+                        console.log(data)
+                        callback(data,error,loading)
+                    }
+                }catch(err){     
+                    if(err.code=="ERR_NETWORK"){
+                        setToastMsg({type:"error",message:"could not locate the server"})
+                        return 
+                    }           
                     if(err.response){
                         const {data} = err.response
+                        console.log(data) 
                         setError({type:"error",message:data.message})
                         setToastMsg({type:"error",message:data.message})
                     }
