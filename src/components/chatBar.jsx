@@ -9,6 +9,7 @@ const Chatbar = forwardRef((props,ref)=>{
     const {chatState} = useContext(ChatContext)
     const {user} = useContext(UserContext)
     const [upload,setUpload] = useState()
+    const [loading,setLoading] = useState(true)
     const [uploadModal,setUploadModal] = useState(false)
     
 
