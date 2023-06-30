@@ -23,7 +23,7 @@ const Chatbar = forwardRef((props,ref)=>{
       };
     
 
-    const[,loading,]=useFetch({url:"chat/file",method:"post",postData:{user,files:selectedFiles,chat:chatState.id}})
+    // const[,loading,]=useFetch({url:"chat/file",method:"post",postData:{user,files:selectedFiles,chat:chatState.id}})
 
     useEffect(()=>{console.log(selectedFiles)},[selectedFiles])
 
@@ -54,7 +54,7 @@ const Chatbar = forwardRef((props,ref)=>{
                             {loading?
                             <BarLoader width={50} color="#f6d7b7" loading={loading} height={2}>
                             </BarLoader>
-                            :<ButtonPrimary onClick={uploadFiles}>Upload</ButtonPrimary>}
+                            :<ButtonPrimary>Upload</ButtonPrimary>}
                         </div>
                     </div>                
                 )}
