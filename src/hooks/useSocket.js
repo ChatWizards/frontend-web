@@ -11,9 +11,10 @@ function useSocket(user){
 
     useMemo(()=>{
         function setupSocket(){
-            console.log("socket called")
-            if(user && !socket){
+            if(user &&user.token && !socket){
                 const socketIo = io(process.env.REACT_APP_BACKEND_SOCKET_URL,{auth:{token:user.token}})
+                console.log("socket called")
+
                 if(socketIo){
                     if(!user || !user&&user.token){
                         socketIo.disconnect()
