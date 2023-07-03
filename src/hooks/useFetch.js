@@ -35,6 +35,7 @@ function useFetch({url,method,postData,config={}},dependencies=[],callback){
                         callback(data,error,loading)
                     }
                 }catch(err){     
+                    console.log(err)
                     if(err.code=="ERR_NETWORK"){
                         setToastMsg({type:"error",message:"could not locate the server"})
                         return 
