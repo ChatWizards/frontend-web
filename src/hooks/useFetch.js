@@ -4,11 +4,11 @@ import { ToastContext } from "../contexts";
 
 const apiInstance = axios.create({
     baseURL:process.env.REACT_APP_BACKEND_URL,
-    headers: {
-        'Access-Control-Allow-Origin': '*', 
-        'Access-Control-Allow-Methods': 'GET, POST, PUT', 
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
+    // headers: {
+    //     'Access-Control-Allow-Origin': '*', 
+    //     'Access-Control-Allow-Methods': 'GET, POST, PUT', 
+    //     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    //   }
 })
 
 
