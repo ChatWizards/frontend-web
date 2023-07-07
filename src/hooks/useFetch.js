@@ -14,6 +14,7 @@ const apiInstance = axios.create({
 
 function useFetch({url,method,postData,config={}},dependencies=[],callback){
     if(config.user&&config.user.token!="") apiInstance.defaults.headers.common['Authorization'] = `Bearer ${config.user.token}`;
+    if(config.type&&config.type ==="multipart/form-data") apiInstance.defaults.headers.common['content-type'] = `multipart/form-data`;
     const { setToastMsg } = useContext(ToastContext);
     const [data,setData] = useState(null)
     const [error,setError] = useState(null)

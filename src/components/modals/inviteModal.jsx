@@ -68,7 +68,8 @@ export default function InviteModal(){
         if(userDetail){
             async function fetchData(){
                 try{
-                    const res = await axios.post("http://localhost:4000/user/invite",{contact:userDetail},{headers:{'Authorization':`Bearer ${user.token}`}})
+
+                    const res = await apiInstance.post("/user/invite",{contact:userDetail},{headers:{'Authorization':`Bearer ${user.token}`}})
                     if(res.status==200){
                         setInvites((prev)=>([...prev,res.data.response]))
                         setToastMsg({type:"success",message:"invitation sent successfully."})
@@ -101,7 +102,7 @@ export default function InviteModal(){
         </div>
         <div className="space-y-2 overflow-y-scroll pt-3 h-[300px] px-1 mx-1" id="invites">
             {
-                loading?<BounceLoader></BounceLoader>:
+                loading?<BounceLoader className="text-primary m-auto"></BounceLoader>:
                 invites.length?
                 invites.filter((i)=>{
                     if(type==="sent") return i.sender.userName == user.userName
