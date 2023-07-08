@@ -22,6 +22,10 @@ const Chatbar = forwardRef((props,ref)=>{
 
     }
 
+    function sendMessageWithFile(){
+        
+    }
+
     const handleFileUpload = (e) => {
         const files = e.target.files;
         console.log(e)
