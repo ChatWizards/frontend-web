@@ -11,7 +11,7 @@ function ChatMenu(props){
         const res = await apiInstance.get(`/chat/delete/${chatState.chatId}`,{headers:{'Authorization':`Bearer ${user.token}`}})
         if(res.status==200){
             setToastMsg({type:"success",message:res.data.message})
-            props.setChats((prev)=>(prev.filter(i=>i._id!==chatState.chatId)))
+            props.setChats((prev)=>(prev.filter(i=>i.chatId!==chatState.chatId)))
             chatDispatch({type:"DELETE_CHAT"})
         }else{
             setToastMsg({type:"error",message:"Failed to delete chat"})

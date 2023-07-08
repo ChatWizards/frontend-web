@@ -8,6 +8,12 @@ let initialState = {
     chatName:"",
     chatImage:"",
     users:[],
+    lastMessage:{
+        sender:{
+            userName:"",
+            content:""
+        }
+    },
     isGroupChat:true,
     messages:[],
     chatPic:''
