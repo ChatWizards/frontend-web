@@ -2,6 +2,7 @@ import { GroupMessage, MessagePrimary } from "./message"
 import Chatbar from "./chatBar"
 import {ChatContext,UserContext,ToastContext} from '../contexts'
 import { createRef,useMemo, useContext, useRef, useState,useReducer, useEffect } from "react"
+import {CircleLoader,SyncLoader} from 'react-spinners';
 import { apiInstance } from "../hooks/useFetch" 
 import ChatMenu from "./chatMenu"
 
@@ -12,10 +13,34 @@ function ChatSection(props){
     const [messages,setMessages] = useState([])
     const [activeMenu,setActiveMenu] = useState(false)
     const [search,setActiveSearch] = useState(false)
+    const [loading,setLoading] = useState(true)
+    const [msgLoader,setMessageLoader] = useState(false)
     let type = "primary"
     
     const chatBarRef = useRef(null)
     const chatOverflowRef = useRef(null)
+
+    useEffect(()=>{
+        function socketCallback(data){
+            if(data.status==201){
+                console.log("triggered")
+                setMessages((prev)=>([...prev,data.response.message]))
+                setMessageLoader(false)
+            }
+            props.setChats((prev)=>(
+                prev.map((ele)=>{
+                    if(ele.chatId==chatState.chatId){
+                        return {...ele,lastMessage:data.response.message}
+                    }
+                    return ele
+                })
+            )) 
+        }
+        socket.on("message",socketCallback)
+        return ()=>{
+            socket.off("message",socketCallback)
+        }
+    },[])
 
     const sendMessage = ()=>{
         const message = chatBarRef.current.value;
@@ -31,11 +56,7 @@ function ChatSection(props){
         }
         messageTime = time.getHours()+":"+time.getMinutes()+" "+status
         socket.emit("message",{chatId:chatState.chatId,messageContent:chatBarRef.current.value})
-        socket.on("message",(data)=>{
-            if(data.status==201){
-                setMessages((prev)=>([...prev,data.response.message]))
-            }
-        })
+        setMessageLoader(true)
         // apiInstance.post('/chat/send',
         //     {chatId:chatState.chatId,messageContent:chatBarRef.current.value},
         //         {headers:{'Authorization':"Bearer "+user.token}})
@@ -63,12 +84,13 @@ function ChatSection(props){
             .then((res)=>{
                 const {data} = res
                 setMessages(data.response)
+                setLoading(false)
             })
         }
     },[chatState.chatId])
 
     useEffect(()=>{
-        chatDispatch({type:"SET_CHAT_MESSAGES",payload:messages})
+        chatDispatch({type:"SET_CHAT_MESSAGES",payload:messages}) 
         console.log(messages)
         const scrollToBottom = () => {
             if (chatOverflowRef.current) {
@@ -106,17 +128,35 @@ function ChatSection(props){
                     <ChatMenu activeMenu={activeMenu} setChats={props.setChats}></ChatMenu>
                 </div>
             </div>
+            {loading&&<CircleLoader
+                      className="m-auto"
+                      color="#7754B2"
+                      cssOverride={{}}
+                      loading
+                      size={148}
+                      speedMultiplier={0.75}
+                    />}
             <div className="w-full overflow-y-scroll relative py-2 px-4" ref={chatOverflowRef}>
-            {!chatState.messages.length&&(
+            {!loading&&!chatState.messages.length&&(
                 <h1 className="inline-block text-2xl absolute top-1/2 left-1/2 -translate-x-1/2">No messages in the conversation</h1>
             )}
-            {chatState.messages.map((ele,index)=>{
+            {!loading&&chatState.messages.map((ele,index)=>{
                 type = ele.sender.userName==user.userName?"primary":"secondary"
                 return chatState.isGroupChat? <GroupMessage key={ele._id} type={type} message={ele.content} image={ele.sender.profilePic} userName={ele.sender.userName} messageTime={parseTime(ele.timeStamp)}/>:
                 <MessagePrimary key={ele._id} type={type} message={ele.content} image={ele.sender.profilePic} messageTime={parseTime(ele.timeStamp)}/>
             })}
             </div>
-            <div className="w-full px-2 bg-dark flex items-center h-[60px]">
+            <div className="w-full px-2 bg-dark flex relative items-center h-[60px]">
+                {msgLoader&&
+                    <div className="absolute -top-5 left-2">
+                        <SyncLoader
+                          color="#7c7e91"
+                          margin={2}
+                          size={7}
+                          speedMultiplier={.75}
+                        />
+                    </div>
+                }
                 <Chatbar ref={chatBarRef} sendMessage={sendMessage}></Chatbar>
             </div>
 

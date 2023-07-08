@@ -44,7 +44,7 @@ const chatDispatch = (state,action)=>{
         case "RENAME_GROUP":
             return {...state,chatName:payload}
         case "SEND_MESSAGE":
-            return {...state,messages:[...state.messages,payload]}
+            return {...state,messages:[...state.messages,payload],lastMessage:payload}
         case "SET_CHAT_MESSAGES":
             return {...state,messages:payload}
         case "UPDATE_MESSAGE":

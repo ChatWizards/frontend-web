@@ -3,21 +3,13 @@ import Contact from "./contact";
 import SearchBar from "./search";
 import useFetch, { apiInstance } from "../hooks/useFetch";
 import { ChatContext, UserContext } from "../contexts";
+import {PacmanLoader} from 'react-spinners';
+
 
 function ContactSection(props){
     const {user} = useContext(UserContext) 
     const {chatState,chatDispatch} = useContext(ChatContext)
     const [searchQuery,setSearchQuery] = useState()
-
-    useFetch({url:'/chat',method:"get",config:{user}},[],(data,error,loading)=>{
-        if(data){
-            props.setChats(() => data && data.response.flatMap((ele) => {
-                    const {users} = ele
-                    const receiver = users.filter((i)=>i.userName!==user.userName)
-                    return ele.chatType==="group"?{...ele,chatId:ele._id}:{users:receiver,chatId:ele._id,chatType:ele.chatType,chatName:ele.chatName,lastMessage:ele.lastMessage,profilePic:receiver[0].profilePic}
-              }))
-        }
-    })
 
     useEffect(()=>{
         console.log(props.chats)
@@ -33,7 +25,12 @@ function ContactSection(props){
             <SearchBar setSearchQuery={setSearchQuery}></SearchBar>
             </div>
             <div className="chats-wrapper relative overflow-auto flex gap-2 justify-center flex-col items-center">
-                {
+                {props.loading&&<PacmanLoader
+                              className="text-primary"
+                              color="#7754B2"
+                              size={30}
+                            />}
+                {!props.loading&&(
                     searchQuery?(
                         props.chats.filter((i) => i.userName.includes(searchQuery)).length === 0 ? (
                             <h1 className="text-primary text-2xl text-center font-mono inline-block m-auto">
@@ -82,7 +79,8 @@ function ContactSection(props){
                                             ></Contact>
                         })):(<h1>No group Chats</h1>)
                     )
-                }
+                    
+                )}
             </div>
         </section>
     )
