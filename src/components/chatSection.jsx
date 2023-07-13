@@ -11,6 +11,7 @@ function ChatSection(props){
     const {user,socket} = useContext(UserContext)
     const {setToastMsg} = useContext(ToastContext)
     const [messages,setMessages] = useState([])
+    const [files,setFiles] = useState([])
     const [activeMenu,setActiveMenu] = useState(false)
     const [search,setActiveSearch] = useState(false)
     const [loading,setLoading] = useState(true)
@@ -40,6 +41,7 @@ function ChatSection(props){
         return ()=>{
             socket.off("message",socketCallback)
         }
+
     },[])
 
     const sendMessage = ()=>{
