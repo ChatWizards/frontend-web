@@ -22,7 +22,6 @@ function ChatMenu(props){
         console.log(chatState)
         const res = await apiInstance.get(`/user/invite`,'post',{contact:chatState.users[0].userName},{headers:{'Authorization':`Bearer ${user.token}`}})
         if(res){
-            console.log(res)
             setToastMsg({type:"success",message:"invitation sent successfully"})
             props.setChats((prev)=>(prev.filter(i=>i._id!==chatState.chatId)))
         }else{

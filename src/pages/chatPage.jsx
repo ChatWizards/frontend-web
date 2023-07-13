@@ -13,10 +13,12 @@ function ChatPage(props){
 
     useFetch({url:'/chat',method:"get",config:{user}},[],(data,error,loading)=>{
         if(data){
+            console.log(data)
             setChats(() => data && data.response.flatMap((ele) => {
                     const {users} = ele
                     const receiver = users.filter((i)=>i.userName!==user.userName)
-                    return ele.chatType==="group"?{...ele,chatId:ele._id}:{users:receiver,chatId:ele._id,chatType:ele.chatType,chatName:ele.chatName,lastMessage:ele.lastMessage,profilePic:receiver[0].profilePic}
+                    console.log(receiver)
+                    return ele.chatType==="group"?{...ele,chatId:ele._id}:{users:receiver,chatId:ele._id,chatType:ele.chatType,chatName:ele.chatName||receiver[0]&&receiver[0].userName,lastMessage:ele.lastMessage,profilePic:ele.profilePic||receiver[0]&&receiver[0].profilePic}
               }))
             setLoading(false)
         }

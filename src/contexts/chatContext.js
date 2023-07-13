@@ -24,7 +24,7 @@ export default function ChatProvider(props){
     const [chatState, chatDispatch] = useReducer(chatReducer, initialState);
 
     useEffect(()=>{
-        console.log(chatState)
+        console.log("chatState:",chatState)
     },[chatState])
     return(
         <ChatContext.Provider value={{chatState,chatDispatch}}>

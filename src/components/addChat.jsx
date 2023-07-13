@@ -7,15 +7,20 @@ import { ToastContext, UserContext } from "../contexts"
 function CreateChat(props){
     const {setToastMsg} = useContext(ToastContext)
     const {user} = useContext(UserContext)
+    
 
     function createChat(contact){
         apiInstance.post('/chat/create',{users:[contact],chatType:"indivisual"},{headers:{'Authorization': 'Bearer ' + user.token}})
             .then((res)=>{
                 const {data} = res
-                setToastMsg({type:"success",message:data.message})
-                props.setChats(data.response)
+                if(data.status==201){
+                    setToastMsg({type:"success",message:data.message})
+                    props.setChats(data.response)
+                }
+                else if(data.status==204) setToastMsg({type:'error',message:"user is not on ChatWizards.           Invitation is sent"})
             })
             .catch(err=>{
+               console.log(err)
                const {data} = err?err.response:""
                setToastMsg({type:"error",message:data.message})
             })

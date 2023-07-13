@@ -1,7 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import Contact from "./contact";
 import SearchBar from "./search";
-import useFetch, { apiInstance } from "../hooks/useFetch";
 import { ChatContext, UserContext } from "../contexts";
 import {PacmanLoader} from 'react-spinners';
 
@@ -14,6 +13,7 @@ function ContactSection(props){
     useEffect(()=>{
         console.log(props.chats)
     },[props.chats])
+    
 
     useEffect(()=>{
     },[searchQuery])
@@ -44,13 +44,13 @@ function ContactSection(props){
                                                 payload:{
                                                     chatId:i.chatId,
                                                     chatName:i.chatName,
-                                                    chatImage:i.chatType=="group"?i.groupPic:i.profilePic,
+                                                    chatImage:i.profilePic,
                                                     isGroupChat:i.chatType==="group",
                                                     users:i.users
                                                 }
                                                 })} 
                                             key={i.chatId} 
-                                            profilePic={i.chatType=="group"?i.groupPic:i.profilePic} 
+                                            profilePic={i.profilePic} 
                                             userName={i.chatName} 
                                             lastMessage={i.lastMessage&&i.lastMessage.content}
                                             active={chatState.chatId==i.chatId}>
@@ -63,15 +63,15 @@ function ContactSection(props){
                                                             type:"SET_CHAT",
                                                                 payload:{
                                                                     chatId:i.chatId,
-                                                                    chatName:i.chatType=="group"?i.chatName:i.users[0].userName,
-                                                                    chatImage:i.chatType=="group"?i.groupPic:i.users[0].profilePic,
+                                                                    chatName:i.chatName,
+                                                                    chatImage:i.profilePic,
                                                                     isGroupChat:i.chatType==="group",
                                                                     users:i.users
                                                                 }
                                                             })} 
                                             key={i.chatId} 
-                                            profilePic={i.chatType=="group"?i.groupPic:i.users[0].profilePic} 
-                                            userName={i.chatName||i.users[0].userName} 
+                                            profilePic={i.profilePic} 
+                                            userName={i.chatName} 
                                             active={chatState.chatId==i.chatId}
                                             lastMessage={i.lastMessage&&i.lastMessage.content}
                                             messageState={i.lastMessage&&i.lastMessage.timeStamp}

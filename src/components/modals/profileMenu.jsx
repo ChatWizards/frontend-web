@@ -37,7 +37,6 @@ const ProfileMenu = forwardRef((props,ref)=>{
     
 
     useEffect(()=>{
-        console.log(menu)
     },[menu])
     return(
         <ul ref={ref} className={`profile-menu bg-dark-200 absolute z-50 right-1 top-0 text-white rounded backdrop-blur-sm p-2 w-fit ${!menu.active&&"hidden"}`} style={{transform:`translateY(${menu.index*50+30}px)`}}>

@@ -37,11 +37,9 @@ const Chatbar = forwardRef((props,ref)=>{
 
     const handleFileUpload = (e) => {
         const files = e.target.files;
-        console.log(e)
         const uniqueFiles = Array.from(files).filter(file => (
           !selectedFiles.some(selectedFile => selectedFile.name === file.name)
         ));
-        console.log(uniqueFiles)
         setSelectedFiles(prevSelectedFiles => [...prevSelectedFiles, ...uniqueFiles]);
       };
     
