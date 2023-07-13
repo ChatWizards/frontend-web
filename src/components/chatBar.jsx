@@ -4,6 +4,7 @@ import useFetch from "../hooks/useFetch"
 import { ChatContext, UserContext } from "../contexts"
 import {BarLoader} from 'react-spinners'
 import DropZone from "./dragNdrop"
+import { useImperativeHandle } from "react"
 
 const Chatbar = forwardRef((props,ref)=>{
     const [selectedFiles,setSelectedFiles] = useState([])
@@ -12,6 +13,17 @@ const Chatbar = forwardRef((props,ref)=>{
     const [upload,setUpload] = useState()
     const [loading,setLoading] = useState(false)
     const [uploadModal,setUploadModal] = useState(false)
+
+    
+    function sendMessageWithFile(){
+           
+    }
+
+    useImperativeHandle(ref,()=>{
+        return{
+            sendMessageWithFile:sendMessageWithFile
+        }
+    },[])
 
     function onDrop(){
 
@@ -22,9 +34,6 @@ const Chatbar = forwardRef((props,ref)=>{
 
     }
 
-    function sendMessageWithFile(){
-        
-    }
 
     const handleFileUpload = (e) => {
         const files = e.target.files;
@@ -67,7 +76,7 @@ const Chatbar = forwardRef((props,ref)=>{
                         </div>
                         <div className="flex w-full flex-col justify-center gap-2 items-center absolute bottom-0 m-auto">
                         <textarea ref={ref} type="text" className="chatbar bg-secondary active:outline-none rounded-md px-4 py-2 shadow-lg w-full text-white" rows={1} placeholder="caption"/>   
-                        <button onClick={sendMessageWithFile} type="button" className="hover:bg-primary hover:opacity-75 duration-300 send-button text-white absolute right-0 top-1/2 -translate-y-1/2 w-[40px] h-[37px] border-2 border-primary bg-dark rounded-md px-3">
+                        <button onClick={props.sendMessageWithFile} type="button" className="hover:bg-primary hover:opacity-75 duration-300 send-button text-white absolute right-0 top-1/2 -translate-y-1/2 w-[40px] h-[37px] border-2 border-primary bg-dark rounded-md px-3">
                             <img src="/icons/send.svg" alt="send"/>
                         </button>
                             {loading&&
