@@ -45,6 +45,7 @@ function ChatSection(props){
 
     const sendMessage = ()=>{
         const message = chatBarRef.current.value;
+        // console.log(chatBarRef,message)
         const time = new Date()
         let messageTime = ""
         let status = "AM"
@@ -56,7 +57,7 @@ function ChatSection(props){
             time.setHours(12) 
         }
         messageTime = time.getHours()+":"+time.getMinutes()+" "+status
-        socket.emit("message",{chatId:chatState.chatId,messageContent:chatBarRef.current.value})
+        socket.emit("message",{chatId:chatState.chatId,messageContent:message})
         setMessageLoader(true)
         // apiInstance.post('/chat/send',
         //     {chatId:chatState.chatId,messageContent:chatBarRef.current.value},
