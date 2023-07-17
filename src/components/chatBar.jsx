@@ -8,9 +8,9 @@ import { useImperativeHandle } from "react"
 
 const Chatbar = forwardRef((props,ref)=>{
     const [selectedFiles,setSelectedFiles] = useState([])
+    const [message,setMessage] = useState("")
     const {chatState} = useContext(ChatContext)
     const {user} = useContext(UserContext)
-    const [upload,setUpload] = useState()
     const [loading,setLoading] = useState(false)
     const [uploadModal,setUploadModal] = useState(false)
 
@@ -19,11 +19,18 @@ const Chatbar = forwardRef((props,ref)=>{
            
     }
 
-    useImperativeHandle(ref,()=>{
-        return{
-            sendMessageWithFile:sendMessageWithFile
-        }
-    },[])
+    function messageContent(){
+        return 
+    }
+
+
+    // useImperativeHandle(ref,()=>{
+    //     return{
+    //         sendMessageWithFile:sendMessageWithFile,
+    //         value:message
+    //     }
+
+    // },[])
 
     function onDrop(){
 
@@ -37,11 +44,9 @@ const Chatbar = forwardRef((props,ref)=>{
 
     const handleFileUpload = (e) => {
         const files = e.target.files;
-        console.log(e)
         const uniqueFiles = Array.from(files).filter(file => (
           !selectedFiles.some(selectedFile => selectedFile.name === file.name)
         ));
-        console.log(uniqueFiles)
         setSelectedFiles(prevSelectedFiles => [...prevSelectedFiles, ...uniqueFiles]);
       };
     
@@ -82,7 +87,6 @@ const Chatbar = forwardRef((props,ref)=>{
                             {loading&&
                             <BarLoader width={50} color="#f6d7b7" loading={loading} height={2}>
                             </BarLoader>
-
                             }
                         </div>
 

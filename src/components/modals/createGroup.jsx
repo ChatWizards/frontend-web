@@ -2,13 +2,13 @@ import Input from "../input";
 import { Button, ButtonAmetyst } from "../button";
 import useFetch, { apiInstance } from "../../hooks/useFetch";
 import { useContext, useState } from "react";
-import { UserContext } from "../../contexts";
+import { ToastContext, UserContext } from "../../contexts";
 
 
 function CreateGroup(props){
     const [chatInfo,setChatInfo] = useState()
     const {user} = useContext(UserContext)
-    const {setToastMsg} = useContext(UserContext)    
+    const {setToastMsg} = useContext(ToastContext)    
 
     function handleSubmit(e){
         e.preventDefault()

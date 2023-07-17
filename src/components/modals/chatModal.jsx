@@ -22,7 +22,6 @@ function ChatModal(props){
 
     function createGroup(){
         const userIds = selectedContacts.map((ele)=>{return ele._id})
-
     }
 
 
