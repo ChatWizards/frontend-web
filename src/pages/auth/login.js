@@ -13,8 +13,6 @@ function Login({setActivePage}){
 
     const [loginDetails,setLoginDetails] = useState();
 
-
-
     function handleSubmit(e){
         e.preventDefault();
         console.log("submitted")
@@ -24,11 +22,16 @@ function Login({setActivePage}){
         ))
     }
 
+    function handleDemo(e){
+        e.preventDefault();
+        
+    }
+
     const [data,error,loading] = useFetch({url:'/user/login',method:'post',postData:loginDetails},[loginDetails])
 
     useEffect(()=>{
         if(data) {
-            setUser(data.response)
+            setUser({...data.response,profilePic:"/icons/user_chat.svg"})
             navigate('/')
         }
         console.log(data)
@@ -56,8 +59,9 @@ function Login({setActivePage}){
                                 </Link>                        
                             </button>
                         </div>
-                        <div className="flex items-center m-auto">
+                        <div className="flex items-center m-auto flex-col">
                             <button className="text-xs p-0 bg-transparent mt-2" type="button">Not a user?<span className="underline text-green-500 hover:text-white duration-200 ps-1" onClick={()=>{setActivePage(1)}}>signup</span></button>
+                            <button className="text-xs p-0 bg-transparent mt-2" type="submit"><span className="underline text-green-500 hover:text-white duration-200 ps-1" onClick={handleDemo}>View demo</span></button>
                         </div>
                     </div>
                 </form>

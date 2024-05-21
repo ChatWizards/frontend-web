@@ -23,7 +23,8 @@ function ChatSection(props){
 
     useEffect(()=>{
         function socketCallback(data){
-            if(data.status==201){
+            console.log("called")
+            if(data.status === 201){
                 setMessages((prev)=>([...prev,data.response.message]))
                 setMessageLoader(false)
             }

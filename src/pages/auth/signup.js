@@ -1,6 +1,6 @@
 import { createRef, useContext, useEffect, useState } from "react"
 import Input from "../../components/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import { ToastContext } from "../../contexts";
 import { useLocation } from "react-router-dom";
@@ -14,12 +14,17 @@ function Signup({setActivePage}){
     const location = useLocation();
     const [token,setToken] = useState("")
     const [signupDetails,setSignupDetails] = useState();
-
+    const navigate = useNavigate()
     const [data,error,loading] = useFetch({
         url:`/user/${verify==true?"verify":"signup"}`,
         method:"post",
         postData:verify==true?signupDetails:signupDetails&&signupDetails.formData
     },[signupDetails])
+
+    useEffect(()=>{
+        // console.log(data)
+        if(verify==true && data && (data.status==200 ||data.status==201)) setActivePage(1)
+    },[data])
 
     function handleSubmit(e){
         e.preventDefault()

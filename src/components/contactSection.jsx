@@ -32,13 +32,16 @@ function ContactSection(props){
                             />}
                 {!props.loading&&(
                     searchQuery?(
-                        props.chats.filter((i) => i.userName.includes(searchQuery)).length === 0 ? (
+                        props.chats.filter((i) =>{
+                            console.log(i)
+                            return i.chatName.includes(searchQuery)
+                            }).length === 0 ? (
                             <h1 className="text-primary text-2xl text-center font-mono inline-block m-auto">
                               No chats with {searchQuery} are found
                             </h1>
                           ) :
                         props.chats.filter((i)=>{
-                            return i.userName.includes(searchQuery)})
+                            return i.chatName.includes(searchQuery)})
                                    .map(i=><Contact onClick={()=>chatDispatch({
                                                 type:"SET_CHAT",
                                                 payload:{
@@ -77,7 +80,7 @@ function ContactSection(props){
                                             messageState={i.lastMessage&&i.lastMessage.timeStamp}
                                             lastMessageSender = {i.lastMessage&&i.lastMessage.sender.userName}
                                             ></Contact>
-                        })):(<h1>No group Chats</h1>)
+                        })):(<h1>No {props.chatType} Chats</h1>)
                     )
                     
                 )}
