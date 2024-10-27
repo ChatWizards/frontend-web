@@ -1,10 +1,12 @@
 function userReducer(state,action){
     switch(action.type){
-        case "DELETE_CONTACT":
-            return state
-        case "ADD_CONTACT":
+        case "REMOVE_USER":
             return state
         case "SET_USER":
+            return state
+        case "GET_USER":
+            return state
+        default:
             return state
     }
 }

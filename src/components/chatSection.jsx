@@ -1,17 +1,18 @@
-import { GroupMessage, MessagePrimary } from "./message"
+import { GroupMessage, MessagePrimary } from "./base/message"
 import Chatbar from "./chatBar"
-import {ChatContext,UserContext,ToastContext} from '../contexts'
-import { createRef,useMemo, useContext, useRef, useState,useReducer, useEffect } from "react"
+import {ChatContext,UserContext,ToastContext, ChatListContext} from '../contexts'
+import { useContext, useRef, useState, useEffect } from "react"
 import {CircleLoader,SyncLoader} from 'react-spinners';
 import { apiInstance } from "../hooks/useFetch" 
 import ChatMenu from "./chatMenu"
+import endpoints from "../api/endpoints";
 
 function ChatSection(props){
     const {chatState,chatDispatch} = useContext(ChatContext)
+    const {chatListDispatch} = useContext(ChatListContext)
     const {user,socket} = useContext(UserContext)
     const {setToastMsg} = useContext(ToastContext)
     const [messages,setMessages] = useState([])
-    const [files,setFiles] = useState([])
     const [activeMenu,setActiveMenu] = useState(false)
     const [search,setActiveSearch] = useState(false)
     const [loading,setLoading] = useState(true)
@@ -23,55 +24,91 @@ function ChatSection(props){
 
     useEffect(()=>{
         function socketCallback(data){
-            console.log("called")
+            console.log("called:",data)
             if(data.status === 201){
-                setMessages((prev)=>([...prev,data.response.message]))
+                setMessages((prev)=>([...prev,data]))
                 setMessageLoader(false)
             }
-            props.setChats((prev)=>(
-                prev.map((ele)=>{
-                    if(ele.chatId==chatState.chatId){
-                        return {...ele,lastMessage:data.response.message}
-                    }
-                    return ele
-                })
-            )) 
+            chatListDispatch('SET_LAST_MESSAGE',{chatId:data._id,message:data})
         }
-        socket.on("message",socketCallback)
+        socket.on("message_upload_complete",socketCallback)
         return ()=>{
-            socket.off("message",socketCallback)
+            socket.off("message_upload_complete",socketCallback)
         }
-
     },[])
 
-    const sendMessage = ()=>{
-        const message = chatBarRef.current.value;
-        // console.log(chatBarRef,message)
-        const time = new Date()
-        let messageTime = ""
-        let status = "AM"
-        if(time.getHours()>12){
-            time.setHours(time.getHours()-12)
-            status = "PM"
-        }   
-        if(time.getHours()==0){
-            time.setHours(12) 
-        }
-        messageTime = time.getHours()+":"+time.getMinutes()+" "+status
-        socket.emit("message",{chatId:chatState.chatId,messageContent:message})
+    const uploadFile = (file, messageId) => {
+        const fileId = new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function () {
+                socket.emit("send-file", {
+                    messageId,
+                    fileData: reader.result,
+                    fileName: file.name,
+                    fileType: file.type,
+                }, (response) => {
+                    if (response && response.fileId) {
+                        resolve(response.fileId);
+                    } else {
+                        reject("File upload failed");
+                    }
+                });
+            };
+            reader.onerror = () => reject("File read failed");
+            reader.readAsArrayBuffer(file);
+        });
+        return fileId;
+    };
+    
+
+    const sendMessage = async () => {
         setMessageLoader(true)
-        // apiInstance.post('/chat/send',
-        //     {chatId:chatState.chatId,messageContent:chatBarRef.current.value},
-        //         {headers:{'Authorization':"Bearer "+user.token}})
-        //     .then((res)=>{
-        //         const {data} = res
-        //     })
-        //     .catch((err)=>{
-        //         const {data} = err.response
-        //         setToastMsg({type:"error",message:data.message})
-        //     })
-        chatBarRef.current.value = ""
-    }
+        const { message, files } = chatBarRef.current.getValue();
+        console.log(socket);
+        const time = new Date();
+        let messageTime = "";
+        let status = "AM";
+        if (time.getHours() > 12) {
+            time.setHours(time.getHours() - 12);
+            status = "PM";
+        }
+        if (time.getHours() === 0) {
+            time.setHours(12);
+        }
+        messageTime = time.getHours() + ":" + time.getMinutes() + " " + status;
+    
+        try {
+            const response = await new Promise((resolve, reject) => {
+                socket.emit("message", { chatId: chatState.chatId, messageContent: message }, (ack) => {
+                    if (ack && ack.messageId) {
+                        console.log(ack);
+                        resolve(ack);
+                    } else {
+                        reject("Failed to get messageId");
+                    }
+                });
+            });
+    
+            
+            const messageId = response.messageId;
+            const fileIds = await Promise.all(files.map(file => uploadFile(file, messageId)));
+            console.log(fileIds);
+            
+            const newMessage = await new Promise((resolve) => {
+                socket.emit("update-message-with-files", { messageId, fileIds }, (ack)=>{
+                    resolve(ack);
+                });
+            });
+            setMessages((prevMessages) => [...prevMessages, newMessage]);
+        } catch (error) {
+            console.error("Error sending message:", error);
+            setToastMsg({ type: "error", message: "Failed to send message." });
+        } finally {
+            setMessageLoader(false);
+            chatBarRef.current.clearValue();
+        }
+    };
+    
 
     const renameChat = (new_name)=> {
         if(chatState.isGroupChat){
@@ -81,7 +118,7 @@ function ChatSection(props){
 
     useEffect(()=>{
         if(chatState.chatId){
-            apiInstance.post('/chat/getMessages',
+            apiInstance.post(endpoints.getMessages,
                 {chatId:chatState.chatId},
                 {headers:{'Authorization':"Bearer "+user.token}})
             .then((res)=>{
@@ -92,9 +129,9 @@ function ChatSection(props){
         }
     },[chatState.chatId])
 
+
     useEffect(()=>{
         chatDispatch({type:"SET_CHAT_MESSAGES",payload:messages}) 
-        console.log(messages)
         const scrollToBottom = () => {
             if (chatOverflowRef.current) {
                 setTimeout(() => {
@@ -103,6 +140,8 @@ function ChatSection(props){
             }
           };
         scrollToBottom()
+        console.log(messages);
+        
     },[messages])
 
     const parseTime = (i)=>{
@@ -128,7 +167,7 @@ function ChatSection(props){
                     <button className={`text-primary p-1 w-8 h-8 flex items-center justify-center border-[1px] duration-300 cursor-pointer shadow-lg shadow-dark border-primary rounded-full hover:bg-primary hover:text-black`} onClick={()=>{chatDispatch({type:"GO_BACK",payload:""})}}>
                         <img src="icons/back.png" className="p-1" alt="<-" />
                     </button>
-                    <ChatMenu activeMenu={activeMenu} setChats={props.setChats}></ChatMenu>
+                    <ChatMenu activeMenu={activeMenu}/>
                 </div>
             </div>
             {loading&&<CircleLoader
@@ -146,7 +185,7 @@ function ChatSection(props){
             {!loading&&chatState.messages.map((ele,index)=>{
                 type = ele.sender.userName==user.userName?"primary":"secondary"
                 return chatState.isGroupChat? <GroupMessage key={ele._id} type={type} message={ele.content} image={ele.sender.profilePic} userName={ele.sender.userName} messageTime={parseTime(ele.timeStamp)}/>:
-                <MessagePrimary key={ele._id} type={type} message={ele.content} image={ele.sender.profilePic} messageTime={parseTime(ele.timeStamp)}/>
+                <MessagePrimary key={ele._id} type={type} message={ele.content} files={ele.files} image={ele.sender.profilePic} messageTime={parseTime(ele.timeStamp)}/>
             })}
             </div>
             <div className="w-full px-2 bg-dark flex relative items-center h-[60px]">

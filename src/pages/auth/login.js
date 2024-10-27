@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from "react"
 import { UserContext } from "../../contexts/userContext";
-import Input from "../../components/input";
+import Input from "../../ui/input";
 import { Link, useNavigate } from "react-router-dom";
-import {MoonLoader,BarLoader} from 'react-spinners'
-import useFetch, {apiInstance} from "../../hooks/useFetch";
+import {BarLoader} from 'react-spinners'
+import useFetch from "../../hooks/useFetch";
 import { ToastContext } from "../../contexts";
+import endpoints from "../../api/endpoints";
 
 function Login({setActivePage}){
     const {setToastMsg} = useContext(ToastContext)
@@ -27,11 +28,11 @@ function Login({setActivePage}){
         
     }
 
-    const [data,error,loading] = useFetch({url:'/user/login',method:'post',postData:loginDetails},[loginDetails])
+    const [data,error,loading] = useFetch({url:endpoints.login,method:'post',postData:loginDetails},[loginDetails])
 
     useEffect(()=>{
         if(data) {
-            setUser({...data.response,profilePic:"/icons/user_chat.svg"})
+            setUser({...data.response})
             navigate('/')
         }
         console.log(data)

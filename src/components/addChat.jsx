@@ -1,23 +1,29 @@
 import { apiInstance } from "../hooks/useFetch"
-import { Button, ButtonAmetyst, ButtonPrimary } from "./button"
-import Input from "./input"
+import { Button, ButtonAmetyst, ButtonPrimary } from "../ui/button"
+import Input from "../ui/input"
 import { useContext } from "react"
-import { ToastContext, UserContext } from "../contexts"
+import { ToastContext, UserContext, ChatContext, ChatListContext } from "../contexts"
+import { type } from "@testing-library/user-event/dist/type"
+import endpoints from "../api/endpoints"
 
 function CreateChat(props){
     const {setToastMsg} = useContext(ToastContext)
     const {user} = useContext(UserContext)
+    const {chatListDispatch} = useContext(ChatListContext)
     
 
     function createChat(contact){
-        apiInstance.post('/chat/create',{users:[contact],chatType:"indivisual"},{headers:{'Authorization': 'Bearer ' + user.token}})
+        apiInstance.post(endpoints.createChat,{users:[contact],chatType:"indivisual"},{headers:{'Authorization': 'Bearer ' + user.token}})
             .then((res)=>{
                 const {data} = res
-                if(data.status==201){
+                console.log(data);
+                if(data.status===201){
                     setToastMsg({type:"success",message:data.message})
-                    props.setChats(data.response)
+                    chatListDispatch({type:"SET_CHAT_LIST",payload:data.response})
                 }
-                else if(data.status==204) setToastMsg({type:'error',message:"user is not on ChatWizards.           Invitation is sent"})
+                else if(data.status===200) {
+                    setToastMsg({type:'success',message:data.message})
+                }
             })
             .catch(err=>{
                console.log(err)
@@ -33,10 +39,10 @@ function CreateChat(props){
     }
 
     return(
-        <section className="bg-dark rounded-md p-2">
-            <h1 className="text-lg uppercase font-mono font-medium text-white">Indivisual Chat</h1>
-            <form className="flex gap-2" onSubmit={handleSubmit}>
-                <Input name="contact" placeholder="Enter email or username" required="true"></Input> 
+        <section className="bg-dark rounded-xl p-2">
+            <h1 className="text-lg uppercase pb-3 text-center font-medium text-white">Indivisual Chat</h1>
+            <form className="flex gap-2 items-center" onSubmit={handleSubmit}>
+                <Input inputStyles={`rounded-xl py-2`} labelStyles={`text-xs`} label="Enter email or username" name="contact" placeholder="Enter email or username" required="true"></Input> 
                 <ButtonPrimary type="submit">Add</ButtonPrimary>
             </form>            
         </section>

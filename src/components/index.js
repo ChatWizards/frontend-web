@@ -1,9 +1,9 @@
-import {Button,ButtonAmetyst,ButtonPrimary} from './button'
+import {Button,ButtonAmetyst,ButtonPrimary} from '../ui/button'
 import ChatBar from './chatBar'
-import Contact from './contact'
+import ChatTile from './base/chatTile'
 import SideNav from './sideNav'
-import { MessagePrimary,GroupMessage } from './message'
-import SearchBar from './search'
+import { MessagePrimary,GroupMessage } from './base/message'
+import SearchBar from '../ui/search'
 
 export default function Component(){
     return(
@@ -28,10 +28,10 @@ export default function Component(){
                 <MessagePrimary text="this is a Messgae" type="secondary" messageTime={"3:00pm"}></MessagePrimary>                    
                 <GroupMessage userName="user1" messageTime="9:00" text="this is a group messgae from user 1" image="logo512.png"/>
                 </section>
-                <Contact userName="Contact name" active={true} image="logo192.png" lastText="hello junior!! This is senior with super senior waiting for sub junior in the sub way minor
-                ." activeTime="9:30pm" isActive={true}></Contact>
-                <Contact userName="Contact name" image="logo192.png" lastText="hello junior!! This is senior with super senior waiting for sub junior in the sub way minor
-                ." activeTime="9:30pm"></Contact>
+                <ChatTile userName="Contact name" active={true} image="logo192.png" lastText="hello junior!! This is senior with super senior waiting for sub junior in the sub way minor
+                ." activeTime="9:30pm" isActive={true}></ChatTile>
+                <ChatTile userName="Contact name" image="logo192.png" lastText="hello junior!! This is senior with super senior waiting for sub junior in the sub way minor
+                ." activeTime="9:30pm"></ChatTile>
                 <ChatBar/>
                 <SearchBar/>
             </div>

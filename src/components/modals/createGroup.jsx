@@ -1,13 +1,15 @@
-import Input from "../input";
-import { Button, ButtonAmetyst } from "../button";
-import useFetch, { apiInstance } from "../../hooks/useFetch";
+import Input from "../../ui/input";
+import { Button, ButtonAmetyst } from "../../ui/button";
+import useFetch from "../../hooks/useFetch";
 import { useContext, useState } from "react";
-import { ToastContext, UserContext } from "../../contexts";
+import { ToastContext, UserContext,ChatListContext } from "../../contexts";
+import endpoints from "../../api/endpoints";
 
 
 function CreateGroup(props){
     const [chatInfo,setChatInfo] = useState()
     const {user} = useContext(UserContext)
+    const {chatListDispatch} = useContext(ChatListContext)
     const {setToastMsg} = useContext(ToastContext)    
 
     function handleSubmit(e){
@@ -17,10 +19,11 @@ function CreateGroup(props){
         setChatInfo({chatName,users,chatType:"group"})
     }
 
-    useFetch({url:'/chat/create',method:"post",postData:chatInfo,config:{user}},[chatInfo],(data,error,loading)=>{
+    useFetch({url:endpoints.createChat,method:"post",postData:chatInfo,config:{user}},[chatInfo],(data,error,loading)=>{
         if(data){
+            console.log(data);
             setToastMsg({type:"success",message:"Chat created successfully"})
-            props.setChats(data.response)
+            chatListDispatch({type:"SET_CHAT_LIST",payload:data.response})
         }
     })
     
@@ -51,7 +54,7 @@ function CreateGroup(props){
             })}
             </div>
             <div className="p-2 pb-3 m-auto">
-                <ButtonAmetyst type="submit">Create Group</ButtonAmetyst>
+                <ButtonAmetyst disabled={props.selectedContacts.length===0} type="submit">Create Group</ButtonAmetyst>
             </div>
             </form>
             

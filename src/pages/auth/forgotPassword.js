@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from "react"
-import Input from "../../components/input";
+import Input from "../../ui/input";
 import { Link } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import {BarLoader} from 'react-spinners'
 import {ToastContext} from '../../contexts'
 import { useSearchParams } from "react-router-dom";
+import endpoints from "../../api/endpoints";
 
 function ForgotPassword({setActivePage}){
     const [forgotDetails,setforgotDetails] = useState();
@@ -17,7 +18,7 @@ function ForgotPassword({setActivePage}){
         setforgotDetails({email:email.value})       
     }
 
-    const [data,error,loading] = useFetch({url:'/user/forgotPassword',method:'post',postData:forgotDetails},[forgotDetails])
+    const [data,error,loading] = useFetch({url:endpoints.forgotPassword,method:'post',postData:forgotDetails},[forgotDetails])
 
     useEffect(()=>{
         const token = searchParams.get("token")

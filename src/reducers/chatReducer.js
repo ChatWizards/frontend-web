@@ -53,12 +53,16 @@ const chatDispatch = (state,action)=>{
             //update reciever side messages
         case "DELETE_MESSAGE":
             return state
+        case "SET_MESSAGES":
+            return {...state,messages:payload}
         case "CHANGE_ADMIN":
             return state    
         case "DELETE_CHAT":
             return initialState 
         case "GO_BACK":
-            return initialState  
+            return initialState
+        default:
+            return state
     }
 }
 

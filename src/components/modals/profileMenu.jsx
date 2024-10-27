@@ -2,11 +2,13 @@ import { forwardRef, useContext, useEffect, useImperativeHandle, useState } from
 import chatDispatch from "../../reducers/chatReducer"
 import { ContactContext, ToastContext, UserContext } from "../../contexts"
 import { apiInstance } from "../../hooks/useFetch"
+import { type } from "@testing-library/user-event/dist/type"
+import endpoints from "../../api/endpoints"
 
 const ProfileMenu = forwardRef((props,ref)=>{
     const [menu,setMenu] = useState({id:"",active:false,index:1})
     const {setToastMsg} = useContext(ToastContext)
-    const {contacts,setContacts} = useContext(ContactContext)
+    const {contacts,contactDispatch} = useContext(ContactContext)
     const {user} = useContext(UserContext)
     useImperativeHandle(ref,()=>({
         changeMenu(id,new_index){
@@ -15,11 +17,11 @@ const ProfileMenu = forwardRef((props,ref)=>{
     }))
 
     function deleteContact(id){
-        apiInstance.post('/user/deleteContact',{contact:id},{headers:{'Authorization': 'Bearer ' + user.token}})
+        apiInstance.get(endpoints.deleteContact(id),{headers:{'Authorization': 'Bearer ' + user.token}})
         .then((res)=>{
             const {data} = res
             setToastMsg({type:"success",message:data.message})
-            setContacts(data.response)
+            contactDispatch({type:'SET_CONTACTS',payload:data.response})
         })
         .catch(err=>{
            const {data} = err?err.response:""

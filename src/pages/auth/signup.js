@@ -1,5 +1,5 @@
 import { createRef, useContext, useEffect, useState } from "react"
-import Input from "../../components/input";
+import Input from "../../ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import { ToastContext } from "../../contexts";
@@ -14,7 +14,6 @@ function Signup({setActivePage}){
     const location = useLocation();
     const [token,setToken] = useState("")
     const [signupDetails,setSignupDetails] = useState();
-    const navigate = useNavigate()
     const [data,error,loading] = useFetch({
         url:`/user/${verify==true?"verify":"signup"}`,
         method:"post",
@@ -22,8 +21,7 @@ function Signup({setActivePage}){
     },[signupDetails])
 
     useEffect(()=>{
-        // console.log(data)
-        if(verify==true && data && (data.status==200 ||data.status==201)) setActivePage(1)
+        if(verify===true && data && (data.status===200 ||data.status===201)) setActivePage(1)
     },[data])
 
     function handleSubmit(e){
@@ -48,12 +46,13 @@ function Signup({setActivePage}){
             const {email,fname,lname,profilePic} = e.target
             console.log(fname)
             const formData = new FormData()
-            console.log(profilePic.files[0].type.includes('image'))
-            if(!profilePic.files[0].type.includes('image')){
-                setToastMsg({type:"error",message:"profile pic must be image"})
-                return
+            if(profilePic.files.length){
+                if(!profilePic.files[0].type.includes('image')){
+                    setToastMsg({type:"error",message:"profile pic must be image"})
+                    return
+                }
+                formData.append('profilePic',profilePic.files[0])
             }
-            formData.append('profilePic',profilePic.files[0])
             formData.append('fname',fname.value)
             formData.append('lname',lname.value)
             formData.append('email',email.value)

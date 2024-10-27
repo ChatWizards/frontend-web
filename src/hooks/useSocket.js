@@ -1,54 +1,66 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect,  useState } from "react";
 import {io} from 'socket.io-client'
 
-
-function useSocket(user){
-    const [socket,setSocket] = useState(null)
-
-    function updateChatId(){
-
-    }
-
-    useMemo(()=>{
-        function setupSocket(){
-            if(user &&user.token && !socket){
-                const socketIo = io(process.env.REACT_APP_BACKEND_SOCKET_URL,{auth:{token:user.token}})
-                console.log("socket called")
-
-                if(socketIo){
-                    if(!user || !user&&user.token){
-                        socketIo.disconnect()
-                    }
-                    socketIo.on("connect_error", (err) => {
-                        if (err.message === "invalid credentials") {
-                            console.log("Unauthorized user")
-                        }
-                        if(err.message === ""){}
-                        console.log(err.message)
-                        setSocket(null);
-
-                    });
-                    socketIo.on("connect",(data)=>{
-                        console.log("connected to server",socketIo.id)
-                    })
-                    socketIo.on("active_user",(data)=>{
-                        console.log(data)
-                    })
-                    socketIo.on("message",(data)=>{
-                        console.log(data)
-                    })
-                    socketIo.on("error", (error) => {
-                        console.log("Socket error:", error);
-                    });
-                    setSocket(socketIo)
-                }   
-            }
-        }
-        setupSocket()
-    },[user.token])
-
+function useSocket(user) {
+    const [socket, setSocket] = useState(null);
     
-    return [socket,updateChatId]
+    useEffect(() => {
+        let socketIo;
+
+        if (user && user.token) {
+            socketIo = io(process.env.REACT_APP_BACKEND_SOCKET_URL, {
+                auth: { token: user.token }
+            });
+            console.log("Socket connection established");
+
+            socketIo.on("connect_error", (err) => {
+                if (err.message === "invalid credentials") {
+                    console.log("Unauthorized user");
+                }
+                console.log(err.message);
+                setSocket(null); // Reset socket on error
+            });
+
+            socketIo.on("connect", () => {
+                console.log("Connected to server", socketIo.id);
+            });
+
+            socketIo.on("active_user", (data) => {
+                console.log(data);
+            });
+
+            socketIo.on("message", (data) => {
+                console.log(data);
+            });
+
+            socketIo.on("message_upload_completed", (data) => {
+                console.log("message_upload_completed");
+                console.log(data);
+            });
+
+            socketIo.on("update-message-with-files", (data) => {
+                console.log("inside update-message-with-files");
+                
+                console.log(data);
+
+            });
+
+            socketIo.on("error", (error) => {
+                console.log("Socket error:", error);
+            });
+
+            setSocket(socketIo);
+        }
+
+        return () => {
+            if (socketIo) {
+                socketIo.disconnect();
+                console.log("Socket disconnected");
+            }
+        };
+    }, [user]);
+
+    return [socket];
 }
 
 export default useSocket;

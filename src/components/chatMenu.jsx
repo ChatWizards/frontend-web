@@ -1,31 +1,36 @@
 import { useContext, useState } from "react"
-import { ChatContext,UserContext,ToastContext} from "../contexts"
+import { ChatContext,UserContext,ToastContext, ChatListContext} from "../contexts"
 import {apiInstance} from '../hooks/useFetch'
+import endpoints from "../api/endpoints"
 
 function ChatMenu(props){
     const {chatState,chatDispatch} = useContext(ChatContext)
+    const {chatListDispatch} = useContext(ChatListContext)
     const {user} = useContext(UserContext)
     const {setToastMsg} = useContext(ToastContext)
 
     async function deleteChat(){
-        const res = await apiInstance.get(`/chat/delete/${chatState.chatId}`,{headers:{'Authorization':`Bearer ${user.token}`}})
+        const res = await apiInstance.get(`${endpoints.deleteChat(chatState.chatId)}`,{headers:{'Authorization':`Bearer ${user.token}`}})
         if(res.status==200){
             setToastMsg({type:"success",message:res.data.message})
-            props.setChats((prev)=>(prev.filter(i=>i.chatId!==chatState.chatId)))
             chatDispatch({type:"DELETE_CHAT"})
+            chatListDispatch({type:"DELETE_CHAT",payload:{chatId:chatState.chatId}})
         }else{
             setToastMsg({type:"error",message:"Failed to delete chat"})
         }
     }
 
     async function addContact(){
-        console.log(chatState)
-        const res = await apiInstance.get(`/user/invite`,'post',{contact:chatState.users[0].userName},{headers:{'Authorization':`Bearer ${user.token}`}})
-        if(res){
-            setToastMsg({type:"success",message:"invitation sent successfully"})
-            props.setChats((prev)=>(prev.filter(i=>i._id!==chatState.chatId)))
-        }else{
-            setToastMsg({type:"error",message:"Failed to delete chat"})
+        try{
+            const res = await apiInstance.post(endpoints.sendInvite,{contact:chatState.users[0].userName},{headers:{'Authorization':`Bearer ${user.token}`}})
+            if(res){
+                setToastMsg({type:"success",message:"invitation sent successfully"})
+                // props.setChats((prev)=>(prev.filter(i=>i._id!==chatState.chatId)))
+            }else{
+                setToastMsg({type:"error",message:"Failed to delete chat"})
+            }
+        }catch(err){
+            console.log(err);
         }
     }
 

@@ -2,7 +2,7 @@ function Invite(props){
     return(
         <article className="invite w-full h-16 flex gap-2 relative rounded-md border-[1px] border-primary">
             <div className="flex items-center w-fit h-full ps-2">
-                <img src={props.profilePic} className="rounded-full bg-primary" height={50} width={50}/>
+                <img src={props.profilePic} alt="" className="rounded-full bg-primary" height={50} width={50}/>
             </div>
             <article className="flex items-center">
                 <p className="invitation-header flex flex-col relative">

@@ -1,7 +1,7 @@
 import {useContext, useEffect, useRef, useState} from 'react'
 import useFetch from '../../hooks/useFetch'
 import {ToastContext, UserContext} from '../../contexts'
-import { ButtonPrimary } from '../button'
+import { ButtonPrimary } from '../../ui/button'
 import ProfileMenu from './profileMenu'
 import { ContactContext } from '../../contexts/contactContext'
 
@@ -54,8 +54,12 @@ function ProfileModal(){
             <h1 className="text-xl text-white font-bold ps-3 py-2 font-mono uppercase">Contacts</h1>
             <ProfileMenu ref={profileMenuRef}></ProfileMenu>
             <div className='flex flex-col gap-2'>
-            {!contacts.length?(<h1>No contacts found.<br/> Send Invites from the menu</h1>):contacts.map((ele,index)=>(
-            <article key={index} className='p-2 relative rounded-sm bg-dark mx-3 flex gap-2 text-white'>
+            {!contacts.length?(
+                <article className='text-center text-primary mb-5 border-dashed border-2 border-primary rounded-md'>
+                    <h1 className='text-center text-primary'>No contacts found.<br/> Send Invites from the menu</h1>
+                </article>
+            ):contacts.map((ele,index)=>(
+            <article key={index} className='p-2 relative h-400 rounded-sm bg-dark mx-3 flex gap-2 text-white'>
                 <img src={ele.profilePic} className='rounded-md' width={30} height={30} alt="" />
                 <h1 className=''>{ele.userName}</h1>
                 <span className='dot rounded-full bg-green-400 w-2 h-2 absolute left-1 top-1'></span>
@@ -65,9 +69,13 @@ function ProfileModal(){
             }
                 </div>
             </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col border-t-2">
             <h1 className="text-xl text-white font-bold ps-3 py-2 font-mono uppercase">Groups</h1>
-            
+            <div className='py-3'>
+                <article className='text-center text-primary border-dashed border-2 border-primary rounded-md'>
+                    <h1 className='text-center text-primary'>No contacts found.<br/> Send Invites from the menu</h1>
+                </article>
+            </div>
         </div>
         </>
     )

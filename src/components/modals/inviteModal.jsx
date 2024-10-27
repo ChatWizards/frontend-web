@@ -1,16 +1,16 @@
-import SearchBar from "../search";
+import SearchBar from "../../ui/search";
 import { useContext, useEffect, useState } from "react";
-import Input from '../input'
-import {ButtonAmetyst,Button} from '../button'
-import axios, { all } from "axios";
+import Input from '../../ui/input'
+import {ButtonAmetyst} from '../../ui/button'
 import useFetch, { apiInstance } from "../../hooks/useFetch";
+import endpoints from '../../api/endpoints'
 import {BounceLoader} from 'react-spinners'
 import { UserContext ,ToastContext} from "../../contexts";
 import { ContactContext } from "../../contexts/contactContext";
 
 export default function InviteModal(){
     const {user} = useContext(UserContext)
-    const {setContacts} = useContext(ContactContext)
+    const {contactDispatch} = useContext(ContactContext)
     const {setToastMsg} = useContext(ToastContext)
     const [invites,setInvites] = useState([])
     const [userDetail,setUserDetail] = useState()
@@ -38,7 +38,7 @@ export default function InviteModal(){
     }
 
     async function acceptInvite(id){
-        const res = await apiInstance.put(`/user/updateInvite/${id}`, { inviteStatus: "accepted" }, { headers: { 'Authorization': `Bearer ${user.token}` } });
+        const res = await apiInstance.put(`${endpoints.getInvites(id)}`, { inviteStatus: "accepted" }, { headers: { 'Authorization': `Bearer ${user.token}` } });
         const {data} = res
         setInvites((prev)=>{
             return prev.map((i)=>{
@@ -48,15 +48,15 @@ export default function InviteModal(){
                 return i
             })
         })
-        setContacts((prev)=>([...prev,data.response.contact]))
+        contactDispatch({type:"ADD_CONTACT",payload:data.response.contact})
     }
 
     function deleteInvite(id){
-        apiInstance.delete(`/user/deleteInvite/${id}`,{headers:{'Authorization':`Bearer ${user.token}`}})
+        apiInstance.delete(`${endpoints.deleteInvite(id)}`,{headers:{'Authorization':`Bearer ${user.token}`}})
         setInvites((prev)=>(prev.filter((item)=>item._id!==id)))
     }
 
-    const [getData,error,loading] = useFetch({url:'/user/invite',method:'get',config:{user}})
+    const [getData,error,loading] = useFetch({url:endpoints.getInvites,method:'get',config:{user}})
 
     useEffect(()=>{
         if(getData){
@@ -69,7 +69,7 @@ export default function InviteModal(){
             async function fetchData(){
                 try{
 
-                    const res = await apiInstance.post("/user/invite",{contact:userDetail},{headers:{'Authorization':`Bearer ${user.token}`}})
+                    const res = await apiInstance.post(endpoints.sendInvite,{contact:userDetail},{headers:{'Authorization':`Bearer ${user.token}`}})
                     if(res.status==200){
                         setInvites((prev)=>([...prev,res.data.response]))
                         setToastMsg({type:"success",message:"invitation sent successfully."})
@@ -127,7 +127,9 @@ export default function InviteModal(){
                         {user.userName==ele.receiver.userName&&<img className="p-1 duration-300 hover:bg-primary rounded text-red-300" src="/icons/accept.svg" style={{width:"35px",aspectRatio:"1 / 1"}} onClick={()=>acceptInvite(ele._id)}/>}
                     </div>
                 </article>
-                )):<h1>No invites</h1>
+                )):<article className="border-2 border-dashed border-primary rounded-sm p-2">
+                    <h1 className="text-primary text-center my-3">No invites</h1>
+                </article>
             }
         </div>
         <h1 className="font-mono text-white pt-3 ps-3 mx-2 border-b-2">Send Invite</h1>

@@ -4,7 +4,7 @@ import GroupChatModal from './chatModal'
 import SettingsModal from './settingsModal'
 import ProfileModal from './profileModal'
 
-function Modal({modalInfo,setModalInfo,setChats}){
+function Modal({modalInfo,setModalInfo}){
     const [transition,setTransition] = useState(modalInfo.active)
 
     useEffect(() => {

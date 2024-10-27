@@ -1,17 +1,18 @@
 import { useContext, useEffect, useState } from "react"
-import Input from "../../components/input";
+import Input from "../../ui/input";
 import { Link } from "react-router-dom";
 import { ToastContext } from "../../contexts";
 import { useNavigate,useSearchParams } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import {BarLoader} from 'react-spinners'
+import endpoints from "../../api/endpoints";
 
 function ResetPassword(props){
     const [newPassword,setpassword] = useState();
     const [token,setToken] = useState()
     const {setToastMsg} = useContext(ToastContext)
     let [searchParams] = useSearchParams();
-    const [data,error,loading] = useFetch({url:'/user/resetPassword',method:'post',postData:{password:newPassword,token}},[newPassword])
+    const [data,error,loading] = useFetch({url:endpoints.resetPassword,method:'post',postData:{password:newPassword,token}},[newPassword])
     const navigate = useNavigate()
 
 

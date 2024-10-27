@@ -1,10 +1,11 @@
 import { useContext, useState } from 'react'
 import AddChat from '../addChat'
-import { ButtonPrimary } from '../button'
+import { ButtonPrimary } from '../../ui/button'
 import { ContactContext } from '../../contexts'
 import CreateGroup from './createGroup'
+import ContactTile from '../base/contactTile'
 
-function ChatModal(props){
+function ChatModal(){
     const [selectedContacts,setSelectedContacts] = useState([])
     const [groupPane,setGroupPane] = useState(false)
     const {contacts} = useContext(ContactContext)
@@ -20,16 +21,12 @@ function ChatModal(props){
         })
     }
 
-    function createGroup(){
-        const userIds = selectedContacts.map((ele)=>{return ele._id})
-    }
-
 
     return(
         <>
-            <AddChat setChats={props.setChats}></AddChat>
-            <h1 className='text-lg uppercase font-mono p-2 text-white text-bold'>Group Chat</h1>
-            <div className='flex gap-1 items-center p-2 flex-wrap max-h-[180px]'>
+            <AddChat />
+            <h1 className='text-lg uppercase font-mono p-2 text-white text-bold mt-5'>Group Chat</h1>
+            <div className='flex gap-1 items-center p-2 flex-wrap max-h-[180px] min-h-[100px] border-2 border-ametyst rounded-xl'>
                 {selectedContacts.length?selectedContacts.map((i)=>{
                     return(
                         <article className='tag flex gap-1 items-center bg-dark-200 text-white backdrop-blur-lg p-1 text-sm rounded-md'>
@@ -40,24 +37,19 @@ function ChatModal(props){
                         </button>
                         </article>
                     )
-                }):<h1 className='text-primary text-sm font-bold text-center'>select contacts to create group</h1>}
+                }):<h1 className='text-primary border-dashed w-full text-sm font-bold text-center'>select contacts to create group</h1>}
             </div>
-            <div className='flex flex-col gap-2 px-3 h-[300px] mt-3'>
+            <div className='flex flex-col gap-2 px-3 h-[300px] mt-6'>
                 <h1 className='border-b-2 uppercase font-mono mx-5 px-2 text-white'>Contacts</h1>
-                {contacts.length?contacts.map((i,index)=>{
-                    return(
-                    <article className='relative contact flex items-center gap-3 bg-dark rounded-md py-2 ps-3' key={i._id}  onClick={()=>updateSelectedMembers(i._id)}>
-                        <img src={i.profilePic} className='rounded-full' width={35} height={35} alt="" />
-                        <p className='text-primary'>{i.userName}</p>
-                        {/* <img className='absolute right-5 h-6 p-1 hover:bg-secondary duration-200 hover:shadow-sm hover:shadow-white aspect-square bg-white cursor-pointer rounded-full' src='/icons/close.svg'/> */}
-                    </article>
-                    )}):<h1 className='text-primary text-center'>No contacts here</h1>
+                {contacts.length?contacts.map(
+                    (i,index)=><ContactTile {...i} onClick={()=>updateSelectedMembers(i._id)}/>
+                    ):<h1 className='text-primary text-center'>No contacts here</h1>
             }
             </div>
             <div className='pt-4 flex justify-center'>
-                <ButtonPrimary onClick={()=>{setGroupPane(true)}}>Create Group</ButtonPrimary>
+                <ButtonPrimary disabled={selectedContacts.length===0} onClick={()=>{setGroupPane(true)}}>Create Group</ButtonPrimary>
             </div>
-            {groupPane&&<CreateGroup selectedContacts={selectedContacts} setGroupPane={setGroupPane} updateSelectedMembers={updateSelectedMembers} setChats={props.setChats}></CreateGroup>}
+            {groupPane&&<CreateGroup selectedContacts={selectedContacts} setGroupPane={setGroupPane} updateSelectedMembers={updateSelectedMembers} />}
         </>
     )
 }
