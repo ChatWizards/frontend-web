@@ -4,11 +4,9 @@ import Input from "../../ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import {BarLoader} from 'react-spinners'
 import useFetch from "../../hooks/useFetch";
-import { ToastContext } from "../../contexts";
 import endpoints from "../../api/endpoints";
 
 function Login({setActivePage}){
-    const {setToastMsg} = useContext(ToastContext)
     const {setUser} = useContext(UserContext)
     const navigate = useNavigate();
 
@@ -25,7 +23,7 @@ function Login({setActivePage}){
 
     function handleDemo(e){
         e.preventDefault();
-        
+        setLoginDetails({email:"johnDoe@gmail.com",password:"12345678"})
     }
 
     const [data,error,loading] = useFetch({url:endpoints.login,method:'post',postData:loginDetails},[loginDetails])

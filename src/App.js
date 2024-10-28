@@ -45,7 +45,8 @@ function App() {
                         </ProtectedRoute>
                       }>  
                     </Route>
-                    <Route path='/auth' element={user.token?<Navigate to={"/chat"}></Navigate>:<Auth></Auth>}></Route>  
+                    <Route path='/auth' element={user.token?<Navigate to={"/chat"}></Navigate>:<Auth></Auth>}>
+                    </Route>  
                     <Route path='/forgot' element={user.token?<Navigate to={"/chat"} replace></Navigate>:<Reset></Reset>}></Route>                
                 </Routes>
               {user.token&&<SideNav setModalInfo={setModalInfo} chatType={chatType} setChatType={setChatType}></SideNav>}

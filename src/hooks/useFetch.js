@@ -28,21 +28,18 @@ function useFetch({url,method,postData,config={}},dependencies=[],callback){
                 let res;
                 setLoading(true)
                 try{
-                    if(method==="post"){
-                        res = await apiInstance.post(url,postData)
-                    }
-                    else if(method==="get"){
-                        res = await apiInstance.get(url)
-                    }
+                    if(method==="post") res = await apiInstance.post(url,postData)
+                    else if(method==="get") res = await apiInstance.get(url)
                     const {data} = res
                     setData(data)
+                    console.log(typeof callback);
                     if(callback && typeof callback == "function"){
-                        console.log(data)
+                        console.log("inside call bacmk here");
                         callback(data,error,loading)
                     }
                 }catch(err){     
                     console.log(err)
-                    if(err.code=="ERR_NETWORK"){
+                    if(err.code==="ERR_NETWORK"){
                         setToastMsg({type:"error",message:"could not locate the server"})
                         return 
                     }           

@@ -141,7 +141,6 @@ function ChatSection(props){
           };
         scrollToBottom()
         console.log(messages);
-        
     },[messages])
 
     const parseTime = (i)=>{

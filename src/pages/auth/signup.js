@@ -4,25 +4,59 @@ import { Link, useNavigate } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import { ToastContext } from "../../contexts";
 import { useLocation } from "react-router-dom";
-import {BarLoader} from 'react-spinners'
+import {BarLoader, MoonLoader} from 'react-spinners'
+import { IoMdEye } from "react-icons/io";
+import { RiEyeFill } from "react-icons/ri";
+import { FaEye, FaRegEye } from "react-icons/fa";
 
 
 
 function Signup({setActivePage}){
     const {setToastMsg} = useContext(ToastContext)
-    const [verify,setVerify] = useState(false)
+    const [verify,setVerify] = useState()
     const location = useLocation();
+    const navigate = useNavigate();
     const [token,setToken] = useState("")
     const [signupDetails,setSignupDetails] = useState();
-    const [data,error,loading] = useFetch({
-        url:`/user/${verify==true?"verify":"signup"}`,
+    const [showPassword,setShowPassword] = useState(false)
+
+    const [data,,loading] = useFetch({
+        url:`/user/${verify?"verify":"signup"}`,
         method:"post",
-        postData:verify==true?signupDetails:signupDetails&&signupDetails.formData
-    },[signupDetails])
+        postData:verify?signupDetails:signupDetails&&signupDetails.formData,
+        callback:verify?(data)=>{
+            console.log("inside callback");
+            handleVerifySuccess(data)
+        }:null
+    },[signupDetails,verify])
+
+    const [tokenData,tokenError,tokenLoading] = [false,false,false]
+
+    useEffect(()=>{
+        if(tokenError&&[401,400,403].includes(tokenError.status)){
+            setToastMsg({type:"error",message:tokenError.message})
+            navigate("/auth/signup")
+        }
+    },[tokenError])
 
     useEffect(()=>{
         if(verify===true && data && (data.status===200 ||data.status===201)) setActivePage(1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[data])
+
+    useEffect(()=>{
+        console.log(loading);
+    },[loading])
+
+    function handleVerifySuccess(data){
+        console.log("inside");
+        console.log(data)
+        if(data.status===200){
+            setToken('')
+            setVerify(false)
+            navigate("/auth/login")
+        }
+    }
 
     function handleSubmit(e){
         e.preventDefault()
@@ -30,8 +64,7 @@ function Signup({setActivePage}){
             const password = e.target.password  
             const confirmPassword = e.target.confirmPassword    
             const userName = e.target.userName
-            if(password.value != confirmPassword.value){
-                console.log(password,confirmPassword)
+            if(password.value !== confirmPassword.value){
                 setToastMsg({type:"error",message:"please check the passwords"})
                 return
             }
@@ -44,7 +77,6 @@ function Signup({setActivePage}){
         }
         else{
             const {email,fname,lname,profilePic} = e.target
-            console.log(fname)
             const formData = new FormData()
             if(profilePic.files.length){
                 if(!profilePic.files[0].type.includes('image')){
@@ -96,15 +128,31 @@ function Signup({setActivePage}){
                     )}
                     {verify&&(
                     <div className="flex flex-col gap-4 items-center">
-                        <Input name="userName" type="text" label="user name" id="userName" spacing="mt-3"  required={true}/>
-                        <Input name="password" type="password" label="Password" color="green" id="password-signup" spacing="mt-3"  required={true}/>
-                        <Input name="confirmPassword" type="password" label="Confirm Password" color="green" id="password-cnfrm-signup"spacing="mt-3" required={true} ></Input>
+                        {tokenLoading&&<MoonLoader className="text-primary" loading={tokenLoading}/>}
+                        {!tokenLoading&&(
+                            <>
+                                <article className="flex relative items-end">
+                                    <Input name="userName" type="text" label="user name" id="userName" spacing="mt-3"  required={true}/>
+                                    <span className="inline-block w-8"></span>
+                                </article>
+                                <article className="flex relative items-end">
+                                    <Input name="password" type={showPassword?"text":"password"} label="Password" color="green" id="password-signup" spacing="mt-3"  required={true}/>
+                                    <button type="button" onClick={()=>{setShowPassword(prev=>!prev)}} className="bg-dark text-white border-2 shadow-md p-2 border-primary hover:bg-secondary hover:text-primary duration-300 rounded-md">
+                                        <FaRegEye size={10}/>
+                                    </button>
+                                </article>
+                                <article className="flex relative items-end">
+                                    <Input name="confirmPassword" type={showPassword?"text":"password"}  label="Confirm Password" color="green" id="password-cnfrm-signup"spacing="mt-3" required={true} ></Input>
+                                    <span className="w-8 inline-block"></span>
+                                </article>
+                            </>
+                        )}
                     </div>
                     )}    
 
                     <div className="buttons-wrapper flex flex-col mt-4">
                         <div className="flex gap-[10px]">
-                            <button className="bg-green-600 relative border-[1px] border-black p-2 px-4 rounded-md ${loading?'opacity-50 cursor-not-allowed':'hover:bg-dark hover:text-primary hover:border-primary'}`} duration-300">
+                            <button className={`bg-green-600 relative border-[1px] border-black p-2 px-4 rounded-md ${loading?'opacity-50 cursor-not-allowed':'hover:bg-dark hover:text-primary hover:border-primary duration-300'}`}>
                             {loading&&(
                                     <div className="absolute flex justify-center left-1/2 bottom-1 -translate-x-1/2">
                                         <BarLoader width={50} color="#f6d7b7" loading={loading} height={2}/>
